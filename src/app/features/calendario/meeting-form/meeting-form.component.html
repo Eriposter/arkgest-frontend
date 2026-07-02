@@ -1,0 +1,221 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900">{{ isEditing ? 'Editar Reunião' : 'Nova Reunião' }}</h1>
+        <p class="text-gray-500 mt-1">Preencha os dados da reunião</p>
+      </div>
+      <button (click)="cancel()" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        Cancelar
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+      
+      <!-- Tipo de Reunião (Destaque) -->
+      <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+        <h2 class="text-lg font-semibold mb-4 flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          Tipo de Reunião
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <button 
+            type="button"
+            (click)="selectType('reuniao_cliente')"
+            [class.ring-4]="meetingType === 'reuniao_cliente'"
+            [class.ring-white]="meetingType === 'reuniao_cliente'"
+            class="p-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 rounded-xl hover:bg-white/20 transition-all text-center">
+            <svg class="w-8 h-8 mx-auto mb-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span class="text-sm font-medium">Reunião Cliente</span>
+          </button>
+          <button 
+            type="button"
+            (click)="selectType('visita_obra')"
+            [class.ring-4]="meetingType === 'visita_obra'"
+            [class.ring-white]="meetingType === 'visita_obra'"
+            class="p-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 rounded-xl hover:bg-white/20 transition-all text-center">
+            <svg class="w-8 h-8 mx-auto mb-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span class="text-sm font-medium">Visita Obra</span>
+          </button>
+          <button 
+            type="button"
+            (click)="selectType('reuniao_equipa')"
+            [class.ring-4]="meetingType === 'reuniao_equipa'"
+            [class.ring-white]="meetingType === 'reuniao_equipa'"
+            class="p-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 rounded-xl hover:bg-white/20 transition-all text-center">
+            <svg class="w-8 h-8 mx-auto mb-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span class="text-sm font-medium">Reunião Equipa</span>
+          </button>
+          <button 
+            type="button"
+            (click)="selectType('apresentacao')"
+            [class.ring-4]="meetingType === 'apresentacao'"
+            [class.ring-white]="meetingType === 'apresentacao'"
+            class="p-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 rounded-xl hover:bg-white/20 transition-all text-center">
+            <svg class="w-8 h-8 mx-auto mb-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+            </svg>
+            <span class="text-sm font-medium">Apresentação</span>
+          </button>
+          <button 
+            type="button"
+            (click)="selectType('outro')"
+            [class.ring-4]="meetingType === 'outro'"
+            [class.ring-white]="meetingType === 'outro'"
+            class="p-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 rounded-xl hover:bg-white/20 transition-all text-center">
+            <svg class="w-8 h-8 mx-auto mb-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+            </svg>
+            <span class="text-sm font-medium">Outro</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dados Principais -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Dados Principais
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Título da Reunião <span class="text-red-500">*</span>
+            </label>
+            <input type="text" formControlName="title" 
+              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 border"
+              [class.border-red-500]="form.get('title')?.invalid && form.get('title')?.touched"
+              placeholder="Ex: Reunião de apresentação do projeto">
+            <p *ngIf="form.get('title')?.invalid && form.get('title')?.touched" class="mt-1 text-sm text-red-600">
+              Título obrigatório
+            </p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Projeto Associado <span class="text-gray-400">(Opcional)</span></label>
+            <select formControlName="project_id" 
+              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 border bg-white">
+              <option value="">Selecione um projeto</option>
+              <option *ngFor="let project of projects" [value]="project.id">
+                {{ project.name }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select formControlName="status" 
+              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 border bg-white">
+              <option value="agendada">Agendada</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="concluida">Concluída</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data e Hora -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Data e Hora
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Data e Hora Início <span class="text-red-500">*</span>
+            </label>
+            <input type="datetime-local" formControlName="start_time" 
+              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 border"
+              [class.border-red-500]="form.get('start_time')?.invalid && form.get('start_time')?.touched">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Data e Hora Fim <span class="text-red-500">*</span>
+            </label>
+            <input type="datetime-local" formControlName="end_time" 
+              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 border"
+              [class.border-red-500]="form.get('end_time')?.invalid && form.get('end_time')?.touched">
+          </div>
+        </div>
+      </div>
+
+      <!-- Localização e Link -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Localização e Link
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Localização <span class="text-gray-400">(Opcional)</span></label>
+            <input type="text" formControlName="location" 
+              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 border"
+              placeholder="Ex: Escritório, Obra, Sala de Reuniões">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Link (Meet/Zoom) <span class="text-gray-400">(Opcional)</span></label>
+            <input type="url" formControlName="meeting_link" 
+              class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 border"
+              placeholder="https://meet.google.com/...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Descrição -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Descrição
+        </h2>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Detalhes da Reunião <span class="text-gray-400">(Opcional)</span></label>
+          <textarea formControlName="description" rows="4"
+            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2 border"
+            placeholder="Descreva a pauta, objetivos e detalhes importantes..."></textarea>
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
+        <button type="button" (click)="cancel()" 
+          class="px-6 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+          Cancelar
+        </button>
+        <button type="submit" [disabled]="loading || form.invalid"
+          class="px-6 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center gap-2">
+          <svg *ngIf="loading" class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ loading ? 'Salvando...' : (isEditing ? 'Atualizar Reunião' : 'Criar Reunião') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

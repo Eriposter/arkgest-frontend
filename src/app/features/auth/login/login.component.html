@@ -1,0 +1,100 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl">
+    <!-- Logo/Header -->
+    <div class="text-center">
+      <div class="mx-auto h-16 w-16 bg-primary-600 rounded-xl flex items-center justify-center mb-4">
+        <svg class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      </div>
+      <h2 class="text-3xl font-bold text-gray-900">ArkGest</h2>
+      <p class="mt-2 text-sm text-gray-600">Gestão de Arquitectura</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="error" class="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+      <p class="text-sm text-red-700">{{ error }}</p>
+    </div>
+
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-6">
+      <div class="space-y-4">
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out"
+            placeholder="seu@email.com"
+            [class.border-red-500]="f['email'].invalid && f['email'].touched"
+          />
+          <p *ngIf="f['email'].invalid && f['email'].touched" class="mt-1 text-sm text-red-600">
+            Email inválido
+          </p>
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">
+            Senha
+          </label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500 transition duration-150 ease-in-out"
+            placeholder="••••••••"
+            [class.border-red-500]="f['password'].invalid && f['password'].touched"
+          />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <input
+            id="remember-me"
+            type="checkbox"
+            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+          />
+          <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+            Lembrar-me
+          </label>
+        </div>
+
+        <div class="text-sm">
+          <a href="#" class="font-medium text-primary-600 hover:text-primary-500">
+            Esqueceu a senha?
+          </a>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="loading"
+        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out"
+      >
+        <span *ngIf="loading">Entrando...</span>
+        <span *ngIf="!loading">Entrar</span>
+      </button>
+    </form>
+
+    <!-- Register Link -->
+    <div class="text-center">
+      <p class="text-sm text-gray-600">
+        Não tem conta?
+        <a routerLink="/auth/register" class="font-medium text-primary-600 hover:text-primary-500">
+          Registar-se
+        </a>
+      </p>
+    </div>
+
+    <!-- Demo Credentials -->
+    <div class="mt-6 p-4 bg-gray-50 rounded-lg text-xs text-gray-600">
+      <p class="font-semibold mb-2">Credenciais de Demo:</p>
+      <p>Email: admin.arkgest.com</p>
+      <p>Senha: password</p>
+    </div>
+  </div>
+</div>
