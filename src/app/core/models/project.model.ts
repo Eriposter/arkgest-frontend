@@ -1,4 +1,5 @@
 import { Client } from './client.model';
+import { Document } from './document.model';
 
 export interface Project {
   id: number;
@@ -20,5 +21,6 @@ export interface Project {
   team_members?: number[];
   created_at: string;
   updated_at: string;
-  client?: Client; // Relação
+  client?: Client;
+  documents?: Document[]; // ✅ ADICIONAR ESTA LINHA
 }

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { LayoutComponent } from './core/components/layout/layout.component';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   {
@@ -32,6 +33,10 @@ export const routes: Routes = [
             (m) => m.ProjetosComponent,
           ),
       },
+      {
+  path: 'projetos/:id',
+  loadComponent: () => import('./features/projetos//project-details/project-details.component').then(m => m.ProjectDetailsComponent)
+},
       {
         path: 'projetos/novo',
         loadComponent: () =>
@@ -96,33 +101,94 @@ export const routes: Routes = [
           ),
       },
       {
-  path: 'calendario',
-  loadComponent: () => import('./features/calendario/calendario/calendario.component').then(m => m.CalendarioComponent)
-},
-{
-  path: 'calendario/novo',
-  loadComponent: () => import('./features/calendario/meeting-form/meeting-form.component').then(m => m.MeetingFormComponent)
-},
-{
-  path: 'calendario/:id/editar',
-  loadComponent: () => import('./features/calendario/meeting-form/meeting-form.component').then(m => m.MeetingFormComponent)
-},
-{
-  path: 'faturas',
-  loadComponent: () => import('./features/financeiro/faturas/faturas.component').then(m => m.FaturasComponent)
-},
-{
-  path: 'faturas/novo',
-  loadComponent: () => import('./features/financeiro/fatura-form/fatura-form.component').then(m => m.FaturaFormComponent)
-},
-{
-  path: 'faturas/:id/editar',
-  loadComponent: () => import('./features/financeiro/fatura-form/fatura-form.component').then(m => m.FaturaFormComponent)
-},
-{
-  path: 'relatorios',
-  loadComponent: () => import('./features/relatorios/relatorios/relatorios.component').then(m => m.RelatoriosComponent)
-},
+        path: 'calendario',
+        loadComponent: () =>
+          import('./features/calendario/calendario/calendario.component').then(
+            (m) => m.CalendarioComponent,
+          ),
+      },
+      {
+        path: 'calendario/novo',
+        loadComponent: () =>
+          import('./features/calendario/meeting-form/meeting-form.component').then(
+            (m) => m.MeetingFormComponent,
+          ),
+      },
+      {
+        path: 'calendario/:id/editar',
+        loadComponent: () =>
+          import('./features/calendario/meeting-form/meeting-form.component').then(
+            (m) => m.MeetingFormComponent,
+          ),
+      },
+      {
+        path: 'faturas',
+        loadComponent: () =>
+          import('./features/financeiro/faturas/faturas.component').then(
+            (m) => m.FaturasComponent,
+          ),
+      },
+      {
+        path: 'faturas/novo',
+        loadComponent: () =>
+          import('./features/financeiro/fatura-form/fatura-form.component').then(
+            (m) => m.FaturaFormComponent,
+          ),
+      },
+      {
+        path: 'faturas/:id/editar',
+        loadComponent: () =>
+          import('./features/financeiro/fatura-form/fatura-form.component').then(
+            (m) => m.FaturaFormComponent,
+          ),
+      },
+      {
+        path: 'relatorios',
+        loadComponent: () =>
+          import('./features/relatorios/relatorios/relatorios.component').then(
+            (m) => m.RelatoriosComponent,
+          ),
+      },
+      {
+        path: 'utilizadores',
+        loadComponent: () =>
+          import('./features/utilizadores/utilizadores/utilizadores.component').then(
+            (m) => m.UtilizadoresComponent,
+          ),
+        canActivate: [roleGuard],
+        data: { roles: ['admin'] }, // Apenas Admin
+      },
+      {
+        path: 'utilizadores/novo',
+        loadComponent: () =>
+          import('./features/utilizadores/utilizador-form/utilizador-form.component').then(
+            (m) => m.UtilizadorFormComponent,
+          ),
+        canActivate: [roleGuard],
+        data: { roles: ['admin'] }, // Apenas Admin
+      },
+      {
+        path: 'utilizadores/:id/editar',
+        loadComponent: () =>
+          import('./features/utilizadores/utilizador-form/utilizador-form.component').then(
+            (m) => m.UtilizadorFormComponent,
+          ),
+      },
+      {
+        path: 'perfil',
+        loadComponent: () =>
+          import('./features/perfil/perfil/perfil.component').then(
+            (m) => m.PerfilComponent,
+          ),
+      },
+      {
+        path: 'configuracoes',
+        loadComponent: () =>
+          import('./features/configuracoes/configuracoes/configuracoes.component').then(m => m.ConfiguracoesComponent),
+        canActivate: [roleGuard],
+        data: { roles: ['admin'] },
+      },
+
     ],
   },
   {

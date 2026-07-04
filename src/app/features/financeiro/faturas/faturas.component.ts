@@ -4,17 +4,21 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { InvoiceService } from '../../../core/services/invoice.service';
 import { Invoice } from '../../../core/models/invoice.model';
+import { InvoiceModalComponent } from '../../faturas/invoice-modal/invoice-modal.component';
+
 
 @Component({
   selector: 'app-faturas',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, InvoiceModalComponent],
   templateUrl: './faturas.component.html'
 })
 export class FaturasComponent implements OnInit {
   invoices: Invoice[] = [];
   filteredInvoices: Invoice[] = [];
   loading = true;
+  selectedInvoice: any = null;
+showModal = false;
   
   // Stats
   stats = {
@@ -39,21 +43,22 @@ export class FaturasComponent implements OnInit {
     this.loadInvoices();
   }
 
-  loadInvoices(): void {
-    this.loading = true;
-    this.invoiceService.getInvoices().subscribe({
-      next: (data) => {
-        this.invoices = data;
-        this.filteredInvoices = data;
-        this.calculateStats();
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Erro ao carregar faturas', err);
-        this.loading = false;
-      }
-    });
-  }
+loadInvoices(): void {
+  this.loading = true;
+  this.invoiceService.getInvoices().subscribe({
+    next: (data) => {
+      console.log('📋 Faturas carregadas:', data);
+      this.invoices = data;
+      this.filteredInvoices = data;
+      this.calculateStats();
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Erro ao carregar faturas', err);
+      this.loading = false;
+    }
+  });
+}
 
   calculateStats(): void {
     this.stats.total = this.invoices.length;
@@ -139,4 +144,17 @@ export class FaturasComponent implements OnInit {
       year: 'numeric'
     });
   }
+  openInvoiceDetails(invoice: any): void {
+  this.selectedInvoice = invoice;
+  this.showModal = true;
+}
+
+closeModal(): void {
+  this.showModal = false;
+  this.selectedInvoice = null;
+}
+
+onInvoiceUpdated(updatedInvoice: any): void {
+  this.loadInvoices();
+}
 }

@@ -1,62 +1,58 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, RouterModule],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  templateUrl: './login.component.html'
 })
 export class LoginComponent {
-  loginForm: FormGroup;
+  form: FormGroup;
   loading = false;
-  error = '';
-  returnUrl: string;
+  showPassword = false;
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router,
-    private route: ActivatedRoute
+    private router: Router
   ) {
-    this.loginForm = this.fb.group({
+    this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', [Validators.required, Validators.minLength(6)]]
     });
-
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-  }
-
-  get f() {
-    return this.loginForm.controls;
   }
 
   onSubmit(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();
+    return;
+  }
+
+  this.loading = true;
+  this.errorMessage = '';
+
+  const { email, password } = this.form.value;
+
+  this.authService.login(email, password).subscribe({
+    next: (response) => {
+      console.log('✅ Login bem-sucedido:', response);
+      console.log('🎭 ROLE do utilizador:', response.user.role); // ← ADICIONAR ISTO
+      this.router.navigate(['/dashboard']);
+    },
+    error: (err) => {
+      console.error('❌ Erro no login:', err);
+      this.errorMessage = err.error?.message || 'Credenciais inválidas. Tente novamente.';
+      this.loading = false;
     }
+  });
+}
 
-    this.loading = true;
-    this.error = '';
-
-    const credentials = {
-      email: this.f['email'].value,
-      password: this.f['password'].value
-    };
-
-    this.authService.login(credentials).subscribe({
-      next: () => {
-        this.router.navigate([this.returnUrl]);
-      },
-      error: (err) => {
-        this.error = err.message;
-        this.loading = false;
-      }
-    });
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 }

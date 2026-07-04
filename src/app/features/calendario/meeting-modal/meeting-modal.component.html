@@ -1,0 +1,303 @@
+<!-- Overlay -->
+<div *ngIf="isOpen" (click)="onClose()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"></div>
+
+<!-- Modal -->
+<div *ngIf="isOpen && meeting" class="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden pointer-events-auto flex flex-col">
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white relative">
+      <button (click)="onClose()" class="absolute top-4 right-4 text-white/80 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div class="flex items-start gap-4">
+        <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-2 flex-wrap">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/20 border border-white/30">
+              {{ meetingService.getTypeLabel(meeting?.type) }}
+            </span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border border-white/30"
+                  [ngClass]="meetingService.getStatusBadge(meeting?.status)">
+              {{ meetingService.getStatusLabel(meeting?.status) }}
+            </span>
+          </div>
+          <h2 class="text-2xl font-bold">{{ meeting?.title }}</h2>
+          <p *ngIf="meeting?.project" class="text-white/80 mt-2 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+            </svg>
+            {{ meeting.project.name }}
+            <span *ngIf="meeting.project.client" class="text-white/60">• {{ meeting.project.client.name }}</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Data e Hora -->
+      <div class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="bg-white/10 rounded-lg p-3">
+          <p class="text-xs text-white/70">Data</p>
+          <p class="text-sm font-medium">{{ meetingService.formatDate(meeting?.start_time) }}</p>
+        </div>
+        <div class="bg-white/10 rounded-lg p-3">
+          <p class="text-xs text-white/70">Horário</p>
+          <p class="text-sm font-medium">
+            {{ meetingService.formatTime(meeting?.start_time) }} - {{ meetingService.formatTime(meeting?.end_time) }}
+          </p>
+        </div>
+        <div class="bg-white/10 rounded-lg p-3">
+          <p class="text-xs text-white/70">Duração</p>
+          <p class="text-sm font-medium">{{ details?.stats?.duration_formatted || '-' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto p-6">
+      
+      <div *ngIf="loading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+      </div>
+
+      <div *ngIf="!loading && details" class="space-y-6">
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+            <div class="flex items-center justify-between mb-2">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="text-2xl font-bold text-blue-700">{{ details.stats.total_participants }}</span>
+            </div>
+            <p class="text-xs font-medium text-blue-600">Total Participantes</p>
+          </div>
+
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+            <div class="flex items-center justify-between mb-2">
+              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-2xl font-bold text-emerald-700">{{ details.stats.accepted }}</span>
+            </div>
+            <p class="text-xs font-medium text-emerald-600">Confirmados</p>
+          </div>
+
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-200">
+            <div class="flex items-center justify-between mb-2">
+              <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-2xl font-bold text-amber-700">{{ details.stats.pending }}</span>
+            </div>
+            <p class="text-xs font-medium text-amber-600">Pendentes</p>
+          </div>
+
+          <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-4 border border-red-200">
+            <div class="flex items-center justify-between mb-2">
+              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              <span class="text-2xl font-bold text-red-700">{{ details.stats.declined }}</span>
+            </div>
+            <p class="text-xs font-medium text-red-600">Recusados</p>
+          </div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Localização e Link -->
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Local e Link
+            </h3>
+            <dl class="space-y-3">
+              <div *ngIf="meeting?.location">
+                <dt class="text-xs text-gray-500 mb-1">Local</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ meeting.location }}</dd>
+              </div>
+              <div *ngIf="meeting?.meeting_link">
+                <dt class="text-xs text-gray-500 mb-1">Link da Reunião</dt>
+                <dd>
+                  <a [href]="meeting.meeting_link" target="_blank" 
+                     class="text-sm text-indigo-600 hover:text-indigo-800 font-medium break-all flex items-center gap-1">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    {{ meeting.meeting_link }}
+                  </a>
+                </dd>
+              </div>
+              <div *ngIf="!meeting?.location && !meeting?.meeting_link" class="text-sm text-gray-500">
+                Nenhum local ou link definido
+              </div>
+            </dl>
+          </div>
+
+          <!-- Organizador -->
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              Organizador
+            </h3>
+            <div *ngIf="meeting?.organizer" class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                {{ getInitials(meeting.organizer.name) }}
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">{{ meeting.organizer.name }}</p>
+                <p class="text-xs text-gray-500">{{ meeting.organizer.email }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descrição -->
+        <div *ngIf="meeting?.description" class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+          <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Descrição / Pauta
+          </h3>
+          <p class="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{{ meeting.description }}</p>
+        </div>
+
+        <!-- Participantes Internos -->
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div class="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Participantes Internos
+            </h3>
+            <span class="text-xs text-gray-500">{{ details.internal_participants?.length || 0 }}</span>
+          </div>
+          <div class="p-4">
+            <div *ngIf="!details.internal_participants?.length" class="text-center py-6 text-gray-500 text-sm">
+              Nenhum participante interno
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div *ngFor="let p of details.internal_participants" class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                  {{ getInitials(p.name) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">{{ p.name }}</p>
+                  <p class="text-xs text-gray-500 truncate">{{ p.email }}</p>
+                </div>
+                <div class="flex flex-col items-end gap-1">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border"
+                        [ngClass]="getRoleBadge(p.role)">
+                    {{ getRoleLabel(p.role) }}
+                  </span>
+                  <span class="inline-flex items-center gap-1 text-xs" [ngClass]="getStatusColor(p.status)">
+                    <span class="w-1.5 h-1.5 rounded-full" 
+                          [class.bg-emerald-500]="p.status === 'accepted'"
+                          [class.bg-amber-500]="p.status === 'pending'"
+                          [class.bg-red-500]="p.status === 'declined'"></span>
+                    {{ getStatusLabel(p.status) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Convidados Externos -->
+        <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          <div class="px-5 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-gray-900 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Convidados Externos
+            </h3>
+            <span class="text-xs text-gray-500">{{ details.external_guests?.length || 0 }}</span>
+          </div>
+          <div class="p-4">
+            <div *ngIf="!details.external_guests?.length" class="text-center py-6 text-gray-500 text-sm">
+              Nenhum convidado externo
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div *ngFor="let g of details.external_guests" class="flex items-center gap-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                  {{ getInitials(g.name) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">{{ g.name }}</p>
+                  <p class="text-xs text-gray-500 truncate">{{ g.email }}</p>
+                </div>
+                <span class="inline-flex items-center gap-1 text-xs" [ngClass]="getStatusColor(g.status)">
+                  <span class="w-1.5 h-1.5 rounded-full" 
+                        [class.bg-emerald-500]="g.status === 'accepted'"
+                        [class.bg-amber-500]="g.status === 'pending'"
+                        [class.bg-red-500]="g.status === 'declined'"></span>
+                  {{ getStatusLabel(g.status) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+          <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Histórico
+          </h3>
+          <div class="relative">
+            <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+            <div class="space-y-4">
+              <div *ngFor="let event of details.timeline" class="relative flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10"
+                     [ngClass]="getTimelineColor(event.type)">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getTimelineIcon(event.icon)" />
+                  </svg>
+                </div>
+                <div class="flex-1 pt-1">
+                  <p class="text-sm font-medium text-gray-900">{{ event.title }}</p>
+                  <p class="text-xs text-gray-500 mt-0.5">{{ event.description }}</p>
+                  <p class="text-xs text-gray-400 mt-1">{{ formatDateTime(event.date) }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="border-t border-gray-200 p-4 bg-gray-50 flex justify-between items-center">
+      <a [routerLink]="['/calendario', meeting?.id, 'editar']" 
+         (click)="onClose()"
+         class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Editar
+      </a>
+      <button (click)="onClose()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">
+        Fechar
+      </button>
+    </div>
+  </div>
+</div>

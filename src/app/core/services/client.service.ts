@@ -11,14 +11,11 @@ export class ClientService {
 
   constructor(private http: HttpClient) {}
 
-  getClients(params?: { search?: string; status?: string; type?: string }): Observable<Client[]> {
+  getClients(params?: any): Observable<Client[]> {
     let httpParams = new HttpParams();
     if (params) {
-      (Object.keys(params) as Array<keyof typeof params>).forEach(key => {
-        const value = params[key];
-        if (value) {
-          httpParams = httpParams.set(key as string, value);
-        }
+      Object.keys(params).forEach(key => {
+        if (params[key]) httpParams = httpParams.set(key, params[key]);
       });
     }
     return this.http.get<Client[]>(this.apiUrl, { params: httpParams });
@@ -26,6 +23,10 @@ export class ClientService {
 
   getClient(id: number): Observable<Client> {
     return this.http.get<Client>(`${this.apiUrl}/${id}`);
+  }
+
+  getClientDetails(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/details`);
   }
 
   createClient(data: Partial<Client>): Observable<Client> {
@@ -38,5 +39,9 @@ export class ClientService {
 
   deleteClient(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  formatCurrency(value: number): string {
+    return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(value || 0);
   }
 }

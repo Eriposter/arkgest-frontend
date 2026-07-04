@@ -6,11 +6,13 @@ import { TaskService } from '../../../core/services/task.service';
 import { Task } from '../../../core/models/task.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../core/models/user.model';
+import { TaskViewModalComponent } from '../task-view-modal/task-view-modal.component';
+
 
 @Component({
   selector: 'app-tarefas',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, TaskViewModalComponent],
   templateUrl: './tarefas.component.html'
 })
 export class TarefasComponent implements OnInit {
@@ -19,6 +21,8 @@ export class TarefasComponent implements OnInit {
   loading = true;
   currentUser: User | null = null;
   activeTab: 'all' | 'my' | 'unassigned' = 'all';
+  selectedTask: Task | null = null;
+showViewModal = false;
   
   // Stats
   stats = {
@@ -182,4 +186,14 @@ export class TarefasComponent implements OnInit {
       year: 'numeric'
     });
   }
+
+  openTaskView(task: Task): void {
+  this.selectedTask = task;
+  this.showViewModal = true;
+}
+
+closeViewModal(): void {
+  this.showViewModal = false;
+  this.selectedTask = null;
+}
 }

@@ -8,6 +8,8 @@ import { AuthService } from '../../../core/services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Project } from '../../../core/models/project.model';
 import { User } from '../../../core/models/user.model';
+import { FormArray } from '@angular/forms';
+
 
 @Component({
   selector: 'app-tarefa-form',
@@ -45,7 +47,9 @@ export class TarefaFormComponent implements OnInit {
       status: ['pendente', Validators.required],
       due_date: [''],
       estimated_hours: [''],
-      progress: [0]
+      progress: [0],
+      collaborators: this.fb.array([]),
+  subtasks: this.fb.array([])
     });
   }
 
@@ -107,6 +111,28 @@ export class TarefaFormComponent implements OnInit {
           const user = this.users.find(u => u.id === task.assigned_to);
           if (user) this.selectedAssignee = user;
         }
+
+        if (task.collaborators) {
+  this.collaborators.clear();
+  task.collaborators.forEach(c => {
+    this.collaborators.push(this.fb.group({
+      user_id: [c.id],
+      role: [c.pivot.role]
+    }));
+  });
+}
+
+if (task.subtasks) {
+  this.subtasks.clear();
+  task.subtasks.forEach(s => {
+    this.subtasks.push(this.fb.group({
+      title: [s.title],
+      description: [s.description || ''],
+      assigned_to: [s.assigned_to || ''],
+      is_completed: [s.is_completed]
+    }));
+  });
+}
         
         this.loading = false;
       },
@@ -173,4 +199,38 @@ export class TarefaFormComponent implements OnInit {
     if (progress < 90) return 'bg-blue-500';
     return 'bg-emerald-500';
   }
+
+  // Getters
+get collaborators(): FormArray {
+  return this.form.get('collaborators') as FormArray;
+}
+
+get subtasks(): FormArray {
+  return this.form.get('subtasks') as FormArray;
+}
+
+// Métodos
+addCollaborator(): void {
+  this.collaborators.push(this.fb.group({
+    user_id: ['', Validators.required],
+    role: ['colaborador']
+  }));
+}
+
+removeCollaborator(index: number): void {
+  this.collaborators.removeAt(index);
+}
+
+addSubtask(): void {
+  this.subtasks.push(this.fb.group({
+    title: ['', Validators.required],
+    description: [''],
+    assigned_to: [''],
+    is_completed: [false]
+  }));
+}
+
+removeSubtask(index: number): void {
+  this.subtasks.removeAt(index);
+}
 }

@@ -170,28 +170,46 @@ export class FaturaFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    this.loading = true;
-    const data = this.form.value;
-    
-    const request$ = this.isEditing 
-      ? this.invoiceService.updateInvoice(this.invoiceId!, data)
-      : this.invoiceService.createInvoice(data);
-
-    request$.subscribe({
-      next: () => {
-        this.router.navigate(['/faturas']);
-      },
-      error: (err) => {
-        console.error('Erro ao salvar', err);
-        this.loading = false;
-      }
-    });
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();
+    return;
   }
+
+  this.loading = true;
+  const data = { ...this.form.value };
+  
+  // ✅ Garantir que os valores numéricos estão corretos
+  data.subtotal = Number(data.subtotal || 0);
+  data.tax_rate = Number(data.tax_rate || 0);
+  data.total = this.calculatedTotal; // ✅ Usar o valor calculado
+
+  // Converter itens
+  if (data.items) {
+    data.items = data.items.map((item: any) => ({
+      description: item.description,
+      quantity: Number(item.quantity || 0),
+      unit_price: Number(item.unit_price || 0),
+      total: Number(item.quantity || 0) * Number(item.unit_price || 0),
+    }));
+  }
+
+  console.log('📤 Dados a enviar:', data);
+
+  const request$ = this.isEditing 
+    ? this.invoiceService.updateInvoice(this.invoiceId!, data)
+    : this.invoiceService.createInvoice(data);
+
+  request$.subscribe({
+    next: (response) => {
+      console.log('✅ Fatura salva:', response);
+      this.router.navigate(['/faturas']);
+    },
+    error: (err) => {
+      console.error('❌ Erro ao salvar:', err);
+      this.loading = false;
+    }
+  });
+}
 
   cancel(): void {
     this.router.navigate(['/faturas']);

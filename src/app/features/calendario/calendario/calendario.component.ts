@@ -4,17 +4,21 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MeetingService } from '../../../core/services/meeting.service';
 import { Meeting } from '../../../core/models/meeting.model';
+import { MeetingModalComponent } from '../meeting-modal/meeting-modal.component';
+
 
 @Component({
   selector: 'app-calendario',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, MeetingModalComponent],
   templateUrl: './calendario.component.html'
 })
 export class CalendarioComponent implements OnInit {
   meetings: Meeting[] = [];
   filteredMeetings: Meeting[] = [];
   loading = true;
+  selectedMeeting: any = null;
+showModal = false;
   
   // Stats
   stats = {
@@ -227,4 +231,14 @@ export class CalendarioComponent implements OnInit {
     if (hours > 0) return `${hours}h`;
     return `${minutes}m`;
   }
+
+  openMeetingDetails(meeting: any): void {
+  this.selectedMeeting = meeting;
+  this.showModal = true;
+}
+
+closeModal(): void {
+  this.showModal = false;
+  this.selectedMeeting = null;
+}
 }

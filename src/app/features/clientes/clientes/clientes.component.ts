@@ -4,17 +4,21 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ClientService } from '../../../core/services/client.service';
 import { Client } from '../../../core/models/client.model';
+import { ClientModalComponent } from '../client-modal/client-modal.component';
+
 
 @Component({
   selector: 'app-clientes',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+imports: [CommonModule, RouterModule, FormsModule, ClientModalComponent],
   templateUrl: './clientes.component.html'
 })
 export class ClientesComponent implements OnInit {
   clients: Client[] = [];
   filteredClients: Client[] = [];
   loading = true;
+  selectedClient: Client | null = null;
+showModal = false;
   
   // Stats
   stats = {
@@ -110,4 +114,14 @@ export class ClientesComponent implements OnInit {
   getInitials(name: string): string {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
   }
+
+  openClientDetails(client: Client): void {
+  this.selectedClient = client;
+  this.showModal = true;
+}
+
+closeModal(): void {
+  this.showModal = false;
+  this.selectedClient = null;
+}
 }

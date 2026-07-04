@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MeetingService } from '../../../core/services/meeting.service';
 import { ProjectService } from '../../../core/services/project.service';
+import { UserService } from '../../../core/services/user.service';
 import { Project } from '../../../core/models/project.model';
+import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-meeting-form',
@@ -15,6 +17,7 @@ import { Project } from '../../../core/models/project.model';
 export class MeetingFormComponent implements OnInit {
   form: FormGroup;
   projects: Project[] = [];
+  users: User[] = [];
   meetingType: 'reuniao_cliente' | 'visita_obra' | 'reuniao_equipa' | 'apresentacao' | 'outro' = 'reuniao_cliente';
   isEditing = false;
   meetingId: number | null = null;
@@ -24,6 +27,7 @@ export class MeetingFormComponent implements OnInit {
     private fb: FormBuilder,
     private meetingService: MeetingService,
     private projectService: ProjectService,
+    private userService: UserService,
     private route: ActivatedRoute,
     private router: Router
   ) {
@@ -36,12 +40,23 @@ export class MeetingFormComponent implements OnInit {
       end_time: ['', Validators.required],
       location: [''],
       meeting_link: [''],
-      status: ['agendada', Validators.required]
+      status: ['agendada', Validators.required],
+      internal_participants: this.fb.array([]),
+      external_guests: this.fb.array([])
     });
+  }
+
+  get internalParticipants(): FormArray {
+    return this.form.get('internal_participants') as FormArray;
+  }
+
+  get externalGuests(): FormArray {
+    return this.form.get('external_guests') as FormArray;
   }
 
   ngOnInit(): void {
     this.loadProjects();
+    this.loadUsers();
     
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -58,10 +73,19 @@ export class MeetingFormComponent implements OnInit {
     });
   }
 
+  loadUsers(): void {
+    this.userService.getUsers().subscribe({
+      next: (data) => {
+        this.users = data.filter(u => u.is_active !== false);
+      },
+      error: (err) => console.error('Erro ao carregar utilizadores', err)
+    });
+  }
+
   loadMeeting(id: number): void {
     this.loading = true;
     this.meetingService.getMeeting(id).subscribe({
-      next: (meeting) => {
+      next: (meeting: any) => {
         this.form.patchValue({
           project_id: meeting.project_id || '',
           title: meeting.title,
@@ -73,8 +97,43 @@ export class MeetingFormComponent implements OnInit {
           meeting_link: meeting.meeting_link || '',
           status: meeting.status
         });
-        
+
         this.meetingType = meeting.type || 'reuniao_cliente';
+
+        // ✅ CORREÇÃO: Aceitar tanto snake_case quanto camelCase
+        // Laravel retorna 'meeting_participants' (snake_case)
+        const participants = meeting.meeting_participants || meeting.meetingParticipants || [];
+
+        console.log('📋 Participantes carregados:', participants);
+
+        // Limpar arrays
+        this.internalParticipants.clear();
+        this.externalGuests.clear();
+
+        // Separar por tipo
+        const internal = participants.filter((p: any) => p.participant_type === 'user');
+        const external = participants.filter((p: any) => p.participant_type === 'guest');
+
+        console.log('👥 Internos:', internal);
+        console.log('📧 Externos:', external);
+
+        // Adicionar participantes internos
+        internal.forEach((p: any) => {
+          this.internalParticipants.push(this.fb.group({
+            user_id: [p.user_id, Validators.required],
+            role: [p.role || 'participante']
+          }));
+        });
+
+        // Adicionar convidados externos
+        external.forEach((g: any) => {
+          this.externalGuests.push(this.fb.group({
+            name: [g.name, Validators.required],
+            email: [g.email, [Validators.required, Validators.email]],
+            role: [g.role || 'convidado']
+          }));
+        });
+
         this.loading = false;
       },
       error: (err) => {
@@ -100,6 +159,31 @@ export class MeetingFormComponent implements OnInit {
     this.form.patchValue({ type });
   }
 
+  // ✅ Métodos para Participantes Internos
+  addInternalParticipant(): void {
+    this.internalParticipants.push(this.fb.group({
+      user_id: ['', Validators.required],
+      role: ['participante']
+    }));
+  }
+
+  removeInternalParticipant(index: number): void {
+    this.internalParticipants.removeAt(index);
+  }
+
+  // ✅ Métodos para Convidados Externos
+  addExternalGuest(): void {
+    this.externalGuests.push(this.fb.group({
+      name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      role: ['convidado']
+    }));
+  }
+
+  removeExternalGuest(index: number): void {
+    this.externalGuests.removeAt(index);
+  }
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -107,18 +191,21 @@ export class MeetingFormComponent implements OnInit {
     }
 
     this.loading = true;
-    const data = this.form.value;
+    const data = { ...this.form.value };
+
+    console.log('📤 Dados a enviar:', data);
 
     const request$ = this.isEditing 
       ? this.meetingService.updateMeeting(this.meetingId!, data)
       : this.meetingService.createMeeting(data);
 
     request$.subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('✅ Reunião salva:', response);
         this.router.navigate(['/calendario']);
       },
       error: (err) => {
-        console.error('Erro ao salvar', err);
+        console.error('❌ Erro ao salvar', err);
         this.loading = false;
       }
     });

@@ -19,11 +19,15 @@ export class InvoiceService {
     return this.http.get<Invoice>(`${this.apiUrl}/${id}`);
   }
 
-  createInvoice(data: Partial<Invoice>): Observable<Invoice> {
+  getInvoiceDetails(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}/details`);
+  }
+
+  createInvoice(data: any): Observable<Invoice> {
     return this.http.post<Invoice>(this.apiUrl, data);
   }
 
-  updateInvoice(id: number, data: Partial<Invoice>): Observable<Invoice> {
+  updateInvoice(id: number, data: any): Observable<Invoice> {
     return this.http.put<Invoice>(`${this.apiUrl}/${id}`, data);
   }
 
@@ -36,6 +40,10 @@ export class InvoiceService {
   }
 
   formatCurrency(value: number): string {
-    return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(value);
+    return new Intl.NumberFormat('pt-AO', { 
+      style: 'currency', 
+      currency: 'AOA',
+      minimumFractionDigits: 2
+    }).format(value || 0);
   }
 }

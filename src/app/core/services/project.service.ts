@@ -30,4 +30,12 @@ export class ProjectService {
   deleteProject(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  updateProgress(id: number, progress: number): Observable<Project> {
+  return this.http.patch<Project>(`${this.apiUrl}/${id}/progress`, { progress });
+}
+
+getProjectDetails(id: number): Observable<any> {
+  return this.http.get<any>(`${this.apiUrl}/${id}/details`);
+}
 }

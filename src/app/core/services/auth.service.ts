@@ -1,111 +1,83 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { User, AuthResponse } from '../models/user.model';
-import { LoginCredentials, RegisterData } from '../models/auth.model';
+import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { User } from '../models/user.model';
+import { Router } from '@angular/router';
+
+interface LoginResponse {
+  user: User;
+  token: string;
+  token_type: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = '/api/auth';
-  
   private userSubject = new BehaviorSubject<User | null>(null);
-  public user$ = this.userSubject.asObservable();
+  user$ = this.userSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    this.loadUserFromStorage();
+  constructor(private http: HttpClient, private router: Router) {
+    this.loadStoredUser();
   }
 
-  login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
-        this.setAuth(response);
-      }),
-      catchError(this.handleError)
-    );
+  private loadStoredUser(): void {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      try {
+        const user = JSON.parse(stored);
+        console.log('👤 User carregado do localStorage:', user); // ← DEBUG
+        this.userSubject.next(user);
+      } catch (e) {
+        console.error('Erro ao parsear user do localStorage', e);
+        localStorage.removeItem('user');
+      }
+    }
   }
 
-  register(data: RegisterData): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
-      tap(response => {
-        this.setAuth(response);
-      }),
-      catchError(this.handleError)
+  login(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).pipe(
+      tap({
+        next: (response) => {
+          console.log('🔐 Resposta do login:', response); // ← DEBUG
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('user', JSON.stringify(response.user));
+          this.userSubject.next(response.user);
+        },
+        error: (err) => {
+          console.error('❌ Erro no login:', err);
+        }
+      })
     );
   }
 
   logout(): Observable<any> {
     return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
       tap(() => {
-        this.clearAuth();
-      }),
-      catchError(this.handleError)
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        this.userSubject.next(null);
+        this.router.navigate(['/auth/login']);
+      })
     );
-  }
-
-  getCurrentUser(): Observable<{ user: User }> {
-    return this.http.get<{ user: User }>(`${this.apiUrl}/user`).pipe(
-      tap(response => {
-        this.userSubject.next(response.user);
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }),
-      catchError(this.handleError)
-    );
-  }
-
-  isAuthenticated(): boolean {
-    return !!this.getToken();
-  }
-
-  getToken(): string | null {
-    return localStorage.getItem('token');
   }
 
   getUser(): User | null {
     return this.userSubject.value;
   }
 
-  private setAuth(response: AuthResponse): void {
-    localStorage.setItem('token', response.token);
-    localStorage.setItem('user', JSON.stringify(response.user));
-    this.userSubject.next(response.user);
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 
-  public clearAuth(): void {
+  isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
+
+  clearAuth(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.userSubject.next(null);
-  }
-
-  private loadUserFromStorage(): void {
-    const user = localStorage.getItem('user');
-    if (user) {
-      this.userSubject.next(JSON.parse(user));
-    }
-  }
-
-  private handleError(error: HttpErrorResponse) {
-    let errorMessage = 'Ocorreu um erro desconhecido!';
-    
-    if (error.error instanceof ErrorEvent) {
-      // Erro do lado do cliente
-      errorMessage = `Erro: ${error.error.message}`;
-    } else {
-      // Erro do lado do servidor
-      if (error.error?.message) {
-        errorMessage = error.error.message;
-      } else if (error.error?.errors) {
-        // Erros de validação
-        const errors = Object.values(error.error.errors).flat();
-        errorMessage = errors.join('\n');
-      } else {
-        errorMessage = `Código do erro: ${error.status}\nMensagem: ${error.message}`;
-      }
-    }
-    
-    console.error('Erro na API:', error);
-    return throwError(() => new Error(errorMessage));
   }
 }

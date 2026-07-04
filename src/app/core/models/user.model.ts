@@ -2,9 +2,18 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  email_verified_at?: string | null;
-  created_at: string;
-  updated_at: string;
+  phone?: string;
+  position?: string;
+  avatar_url?: string;
+  role?: string; // ← GARANTIR QUE ESTE CAMPO EXISTE
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Role {
+  name: string;
+  permissions: string[];
 }
 
 export interface AuthResponse {

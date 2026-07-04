@@ -1,0 +1,225 @@
+<!-- Overlay -->
+<div *ngIf="isOpen" (click)="onClose()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"></div>
+
+<!-- Modal -->
+<div *ngIf="isOpen && client" class="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden pointer-events-auto flex flex-col">
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white relative">
+      <button (click)="onClose()" class="absolute top-4 right-4 text-white/80 hover:text-white">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div class="flex items-start gap-4">
+        <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0">
+          <span class="text-3xl font-bold">{{ getInitials(client?.name || '') }}</span>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-white/20 border border-white/30">
+              {{ getTypeLabel(client) }}
+            </span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border border-white/30"
+                  [ngClass]="getStatusBadge(client?.status || '')">
+              {{ getStatusLabel(client?.status || '') }}
+            </span>
+          </div>
+          <h2 class="text-2xl font-bold">{{ client?.name }}</h2>
+          <p class="text-white/80 mt-1 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            {{ client?.email }}
+          </p>
+          <p *ngIf="client?.phone" class="text-white/80 mt-1 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            {{ client?.phone }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto p-6">
+      
+      <div *ngIf="loading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+      </div>
+
+      <div *ngIf="!loading && details" class="space-y-6">
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+            <div class="flex items-center justify-between mb-2">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+              </svg>
+              <span class="text-2xl font-bold text-blue-700">{{ details.stats?.total_projects || 0 }}</span>
+            </div>
+            <p class="text-xs font-medium text-blue-600">Total de Projetos</p>
+          </div>
+
+          <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+            <div class="flex items-center justify-between mb-2">
+              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-2xl font-bold text-emerald-700">{{ details.stats?.active_projects || 0 }}</span>
+            </div>
+            <p class="text-xs font-medium text-emerald-600">Projetos Ativos</p>
+          </div>
+
+          <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+            <div class="flex items-center justify-between mb-2">
+              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span class="text-xl font-bold text-purple-700">{{ clientService.formatCurrency(details.stats?.total_billed || 0) }}</span>
+            </div>
+            <p class="text-xs font-medium text-purple-600">Total Faturado</p>
+          </div>
+
+          <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-200">
+            <div class="flex items-center justify-between mb-2">
+              <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-xl font-bold text-amber-700">{{ clientService.formatCurrency(details.stats?.total_pending || 0) }}</span>
+            </div>
+            <p class="text-xs font-medium text-amber-600">Pendente</p>
+          </div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Informações do Cliente -->
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Informações
+            </h3>
+            <dl class="space-y-3">
+              <div *ngIf="client?.company" class="flex justify-between">
+                <dt class="text-sm text-gray-500">Empresa</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ client?.company }}</dd>
+              </div>
+              <div *ngIf="client?.nif" class="flex justify-between">
+                <dt class="text-sm text-gray-500">NIF</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ client?.nif }}</dd>
+              </div>
+              <div *ngIf="client?.bi" class="flex justify-between">
+                <dt class="text-sm text-gray-500">BI</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ client?.bi }}</dd>
+              </div>
+              <div *ngIf="client?.profession" class="flex justify-between">
+                <dt class="text-sm text-gray-500">Profissão</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ client?.profession }}</dd>
+              </div>
+              <div *ngIf="client?.city" class="flex justify-between">
+                <dt class="text-sm text-gray-500">Cidade</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ client?.city }}</dd>
+              </div>
+              <div *ngIf="client?.address" class="flex justify-between">
+                <dt class="text-sm text-gray-500">Endereço</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ client?.address }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-sm text-gray-500">Cliente desde</dt>
+                <dd class="text-sm font-medium text-gray-900">{{ formatDate(client?.created_at || '') }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Projetos Recentes -->
+          <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+              </svg>
+              Projetos Recentes
+            </h3>
+            <div *ngIf="!details?.client?.projects || details?.client?.projects?.length === 0" class="text-center py-6 text-gray-500 text-sm">
+    Nenhum projeto
+</div>
+            <div class="space-y-2">
+              <div *ngFor="let project of details.client?.projects | slice:0:5" class="p-3 bg-white rounded-lg border border-gray-200">
+                <div class="flex items-center justify-between mb-1">
+                  <p class="text-sm font-medium text-gray-900 truncate">{{ project.name }}</p>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                        [ngClass]="getProjectStatusBadge(project.status)">
+                    {{ project.status }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500">{{ project.created_at | date:'dd/MM/yyyy' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Faturas Recentes -->
+        <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+          <h3 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Faturas Recentes
+          </h3>
+
+          <div *ngIf="!details?.client?.invoices || details?.client?.invoices?.length === 0" class="text-center py-6 text-gray-500 text-sm">
+    Nenhuma fatura
+</div>
+          <div class="space-y-2">
+            <div *ngFor="let invoice of details.client?.invoices | slice:0:5" class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+              <div>
+                <p class="text-sm font-medium text-gray-900">{{ invoice.invoice_number }}</p>
+                <p class="text-xs text-gray-500">{{ invoice.issue_date | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-bold text-gray-900">{{ clientService.formatCurrency(invoice.total) }}</p>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                      [ngClass]="getInvoiceStatusBadge(invoice.status)">
+                  {{ invoice.status }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notas -->
+        <div *ngIf="client?.notes" class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+          <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Notas
+          </h3>
+          <p class="text-sm text-gray-700 leading-relaxed">{{ client?.notes }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="border-t border-gray-200 p-4 bg-gray-50 flex justify-between items-center">
+      <a [routerLink]="['/clientes', client?.id, 'editar']" 
+         (click)="onClose()"
+         class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Editar Cliente
+      </a>
+      <button (click)="onClose()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">
+        Fechar
+      </button>
+    </div>
+  </div>
+</div>

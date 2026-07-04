@@ -1,16 +1,54 @@
-::-webkit-scrollbar {
-  width: 6px;
+// Scrollbar escondido apenas no nav interno
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+// Item ativo com barra branca à esquerda
+.active-item {
+  position: relative;
+  overflow: hidden;
   
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: white;
+    border-radius: 0 4px 4px 0;
+  }
+}
+
+// Efeito hover com translate
+.hover\:translate-x-1:hover {
+  transform: translateX(4px);
+}
+
+// Sidebar sempre fixo (mobile e desktop)
+:host {
+  display: block;
+}
+
+aside {
+  height: 100vh;
+  overflow: hidden;
+}
+
+// Animação suave para badges
+.badge-pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
   }
 }

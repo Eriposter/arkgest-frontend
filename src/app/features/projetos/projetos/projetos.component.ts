@@ -4,16 +4,20 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../../core/services/project.service';
 import { Project } from '../../../core/models/project.model';
+import { ProjectModalComponent } from '../project-modal/project-modal.component';
+
 
 @Component({
   selector: 'app-projetos',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+imports: [CommonModule, RouterModule, FormsModule, ProjectModalComponent],
   templateUrl: './projetos.component.html'
 })
 export class ProjetosComponent implements OnInit {
   projects: Project[] = [];
   filteredProjects: Project[] = [];
+  selectedProject: Project | null = null;
+showModal = false;
   loading = true;
   
   // Stats
@@ -162,4 +166,26 @@ export class ProjetosComponent implements OnInit {
     if (progress < 90) return 'bg-blue-500';
     return 'bg-emerald-500';
   }
+
+  openProjectDetails(project: Project): void {
+  this.selectedProject = project;
+  this.showModal = true;
+}
+
+closeModal(): void {
+  this.showModal = false;
+  this.selectedProject = null;
+}
+
+onProgressUpdated(updatedProject: Project): void {
+  // Atualizar na lista
+  const index = this.projects.findIndex(p => p.id === updatedProject.id);
+  if (index !== -1) {
+    this.projects[index] = updatedProject;
+    this.filteredProjects[index] = updatedProject;
+    if (this.selectedProject) {
+      this.selectedProject = updatedProject;
+    }
+  }
+}
 }
