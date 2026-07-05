@@ -47,7 +47,7 @@ showModal = false;
     
     this.projectService.getProjects().subscribe({
       next: (data) => {
-        console.log('Projetos carregados:', data);
+        // console.log('Projetos carregados:', data);
         this.projects = data;
         this.filteredProjects = data;
         this.calculateStats();

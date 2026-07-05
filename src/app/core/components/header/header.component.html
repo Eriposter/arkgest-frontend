@@ -1,136 +1,88 @@
-<header class="flex h-16 shrink-0 items-center gap-x-4 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-
-  <!-- Botão Mobile Menu -->
-  <button (click)="toggleSidebar.emit()" type="button" class="lg:hidden -m-2.5 p-2.5 text-gray-700"
-    aria-label="Abrir menu">
-    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-    </svg>
-  </button>
-
-  <!-- Separator -->
-  <div class="h-6 w-px bg-gray-200 lg:hidden" aria-hidden="true"></div>
-
-  <!-- Search -->
-  <div class="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-    <form class="relative flex flex-1" action="#" method="GET">
-      <label for="search-field" class="sr-only">Search</label>
-      <div class="relative flex-1">
-        <svg class="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400" viewBox="0 0 20 20"
-          fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd"
-            d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z"
-            clip-rule="evenodd" />
-        </svg>
-        <input id="search-field"
-          class="block h-full w-full border-0 py-0 pl-10 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-          placeholder="Pesquisar projetos, tarefas, documentos..." type="search" name="search"
-          [(ngModel)]="searchQuery" />
-      </div>
-    </form>
-
-    <!-- Right side -->
-    <div class="flex items-center gap-x-4 lg:gap-x-6">
-
-      <!-- Notifications -->
-      <!-- Notifications Dropdown -->
-<div class="relative">
-  <button 
-    (click)="toggleNotifications()"
-    type="button" 
-    class="relative -m-2.5 flex items-center justify-center rounded-full p-2.5 text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-colors">
-    <span class="sr-only">Ver notificações</span>
-    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-    </svg>
-    <span *ngIf="unreadCount > 0" class="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 ring-2 ring-white">
-      <span class="text-[10px] font-bold text-white">{{ unreadCount > 9 ? '9+' : unreadCount }}</span>
-    </span>
-  </button>
-
-  <!-- Dropdown Menu -->
-  <div *ngIf="showNotifications" 
-       class="absolute right-0 z-50 mt-2 w-80 origin-top-right rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none overflow-hidden">
-    
-    <!-- Header do Dropdown -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
-      <h3 class="text-sm font-semibold text-gray-900">Notificações</h3>
-      <span *ngIf="unreadCount > 0" class="text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">
-        {{ unreadCount }} novas
-      </span>
-    </div>
-
-    <!-- Lista de Notificações -->
-    <div class="max-h-96 overflow-y-auto divide-y divide-gray-100">
+<header class="bg-white shadow-lg sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
       
-      <!-- Estado vazio -->
-      <div *ngIf="notifications.length === 0" class="p-8 text-center text-gray-500">
-        <svg class="mx-auto h-10 w-10 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-        </svg>
-        <p class="text-sm">Sem notificações</p>
+
+      <!-- ✅ CENTRO: Pesquisa Global -->
+      <div class="flex-1 max-w-xl mx-4 hidden md:block">
+        <app-global-search></app-global-search>
       </div>
 
-      <!-- Lista de notificações -->
-      <div *ngFor="let notification of notifications">
-        <a [routerLink]="notification.link"
-           (click)="markAsRead(notification); showNotifications = false"
-           [ngClass]="notification.read_at ? 'bg-white' : 'bg-indigo-50/50'"
-           class="block p-4 hover:bg-gray-50 transition-colors cursor-pointer">
-          <div class="flex items-start gap-3">
-            <!-- Ícone -->
-            <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center" 
-                 [ngClass]="getIconColor(notification.type)">
-              <svg *ngIf="notification.icon === 'task'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <svg *ngIf="notification.icon === 'invoice'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <svg *ngIf="notification.icon === 'bell' || !notification.icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-              </svg>
+      <!-- Direita: Ações -->
+      <div class="flex items-center gap-2">
+        
+        <!-- ✅ Botão de Pesquisa Mobile -->
+        <button (click)="openSearch()" 
+                class="md:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                title="Pesquisar">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
+
+        <!-- Notificações -->
+        <div class="relative">
+          <button (click)="toggleNotifications()" 
+                  class=" bg-gradient-to-r from-indigo-600 to-purple-600 relative p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span *ngIf="unreadCount > 0" 
+                  class="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              {{ unreadCount > 9 ? '9+' : unreadCount }}
+            </span>
+          </button>
+
+          <!-- Dropdown de Notificações -->
+          <div *ngIf="showNotifications" 
+               class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden z-50">
+            <div class="px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+              <h3 class="font-semibold">Notificações</h3>
+              <p class="text-xs text-white/80">{{ unreadCount }} novas</p>
             </div>
             
-            <!-- Texto -->
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">{{ notification.title }}</p>
-              <p class="text-xs text-gray-500 mt-0.5 line-clamp-2">{{ notification.message }}</p>
-              <p class="text-[10px] text-gray-400 mt-1">{{ notification.created_at }}</p>
+            <div class="max-h-96 overflow-y-auto">
+              <div *ngIf="notifications.length === 0" class="px-4 py-8 text-center text-gray-500">
+                <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <p class="text-sm">Sem notificações</p>
+              </div>
+              
+              <div *ngFor="let notification of notifications" 
+                   (click)="markAsRead(notification)"
+                   class="px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                   [class.bg-indigo-50]="!notification.read_at">
+                <div class="flex items-start gap-3">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                       [ngClass]="getIconColor(notification.type)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900">{{ notification.title }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ notification.message }}</p>
+                    <p class="text-[10px] text-gray-400 mt-1">{{ notification.created_at }}</p>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <!-- Indicador de não lida -->
-            <div *ngIf="!notification.read_at" class="flex-shrink-0 w-2 h-2 rounded-full bg-indigo-600 mt-2"></div>
+            
+            <div class="px-4 py-2 bg-gray-50 border-t border-gray-200 text-center">
+              <a routerLink="/notificacoes" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                Ver todas as notificações
+              </a>
+            </div>
           </div>
-        </a>
+        </div>
+
+        <!-- Separador -->
+        <div class="w-px h-6 bg-white/20"></div>
+
+        <!-- Menu do Utilizador -->
+        <app-user-menu></app-user-menu>
       </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="border-t border-gray-100 bg-gray-50 px-4 py-2 text-center">
-      <a routerLink="/notificacoes" (click)="showNotifications = false" class="text-xs font-medium text-indigo-600 hover:text-indigo-500">
-        Ver todas as notificações
-      </a>
-    </div>
-  </div>
-</div>
-
-      <!-- Messages -->
-      <button type="button"
-        class="-m-2.5 flex items-center justify-center rounded-full p-2.5 text-gray-400 hover:text-gray-500 relative">
-        <span class="sr-only">View messages</span>
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-        </svg>
-        <span class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-green-500 ring-2 ring-white"></span>
-      </button>
-
-      <!-- Separator -->
-      <div class="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200" aria-hidden="true"></div>
-
-      <!-- User Menu -->
-      <app-user-menu></app-user-menu>
     </div>
   </div>
 </header>

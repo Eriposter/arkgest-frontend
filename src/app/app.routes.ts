@@ -27,30 +27,22 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'projetos',
-        loadComponent: () =>
-          import('./features/projetos/projetos/projetos.component').then(
-            (m) => m.ProjetosComponent,
-          ),
-      },
-      {
-  path: 'projetos/:id',
-  loadComponent: () => import('./features/projetos//project-details/project-details.component').then(m => m.ProjectDetailsComponent)
+  path: 'projetos/novo',
+  loadComponent: () => import('./features/projetos/projeto-form/projeto-form.component').then(m => m.ProjetoFormComponent)
 },
-      {
-        path: 'projetos/novo',
-        loadComponent: () =>
-          import('./features/projetos/projeto-form/projeto-form.component').then(
-            (m) => m.ProjetoFormComponent,
-          ),
-      },
-      {
-        path: 'projetos/:id/editar',
-        loadComponent: () =>
-          import('./features/projetos/projeto-form/projeto-form.component').then(
-            (m) => m.ProjetoFormComponent,
-          ),
-      },
+{
+  path: 'projetos/:id/editar',
+  loadComponent: () => import('./features/projetos/projeto-form/projeto-form.component').then(m => m.ProjetoFormComponent)
+},
+{
+  path: 'projetos/:id',
+  loadComponent: () => import('./features/projetos/project-details/project-details.component').then(m => m.ProjectDetailsComponent)
+},
+// ✅ Lista por último
+{
+  path: 'projetos',
+  loadComponent: () => import('./features/projetos/projetos/projetos.component').then(m => m.ProjetosComponent)
+},
       {
         path: 'tarefas',
         loadComponent: () =>
@@ -184,11 +176,20 @@ export const routes: Routes = [
       {
         path: 'configuracoes',
         loadComponent: () =>
-          import('./features/configuracoes/configuracoes/configuracoes.component').then(m => m.ConfiguracoesComponent),
+          import('./features/configuracoes/configuracoes/configuracoes.component').then(
+            (m) => m.ConfiguracoesComponent,
+          ),
         canActivate: [roleGuard],
         data: { roles: ['admin'] },
       },
-
+      {
+        path: 'audit',
+        loadComponent: () =>
+          import('./features/audit/audit-log/audit-log.component').then(
+            (m) => m.AuditLogComponent,
+          ),
+        data: { roles: ['admin'] },
+      },
     ],
   },
   {

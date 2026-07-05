@@ -40,8 +40,6 @@ export class LoginComponent {
 
   this.authService.login(email, password).subscribe({
     next: (response) => {
-      console.log('✅ Login bem-sucedido:', response);
-      console.log('🎭 ROLE do utilizador:', response.user.role); // ← ADICIONAR ISTO
       this.router.navigate(['/dashboard']);
     },
     error: (err) => {

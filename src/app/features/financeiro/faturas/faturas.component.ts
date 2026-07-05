@@ -47,7 +47,7 @@ loadInvoices(): void {
   this.loading = true;
   this.invoiceService.getInvoices().subscribe({
     next: (data) => {
-      console.log('📋 Faturas carregadas:', data);
+      // console.log('📋 Faturas carregadas:', data);
       this.invoices = data;
       this.filteredInvoices = data;
       this.calculateStats();

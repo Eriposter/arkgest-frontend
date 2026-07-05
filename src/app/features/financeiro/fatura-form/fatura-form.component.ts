@@ -193,7 +193,7 @@ export class FaturaFormComponent implements OnInit {
     }));
   }
 
-  console.log('📤 Dados a enviar:', data);
+  // console.log('📤 Dados a enviar:', data);
 
   const request$ = this.isEditing 
     ? this.invoiceService.updateInvoice(this.invoiceId!, data)
@@ -201,7 +201,7 @@ export class FaturaFormComponent implements OnInit {
 
   request$.subscribe({
     next: (response) => {
-      console.log('✅ Fatura salva:', response);
+      // console.log('✅ Fatura salva:', response);
       this.router.navigate(['/faturas']);
     },
     error: (err) => {

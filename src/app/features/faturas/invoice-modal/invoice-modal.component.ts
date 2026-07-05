@@ -17,6 +17,7 @@ export class InvoiceModalComponent implements OnChanges {
 
   details: any = null;
   loading = false;
+  downloading = false;
 
   constructor(public invoiceService: InvoiceService) {}
 
@@ -123,6 +124,37 @@ getDaysClass(days: any): string {
   if (daysNum < 0) return 'text-red-300'; // Atrasada
   if (daysNum <= 7) return 'text-amber-300'; // Próximo do vencimento
   return 'text-emerald-300'; // Ainda tem tempo
+}
+
+  markAsPaid(id: number): void {
+    if (confirm('Confirmar pagamento desta fatura?')) {
+      this.invoiceService.markAsPaid(id).subscribe({
+        // next: () => this.loadInvoices(),
+        error: (err) => console.error('Erro ao marcar como paga', err)
+      });
+    }
+  }
+
+
+
+downloadPdf(): void {
+  if (!this.invoice?.id) return;
+  
+  this.downloading = true;
+  
+  // Criar link temporário para download
+  const token = localStorage.getItem('token');
+  const link = document.createElement('a');
+  link.href = `/api/invoices/${this.invoice.id}/download?token=${token}`;
+  link.target = '_blank';
+  link.download = `Fatura-${this.invoice.invoice_number}.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  setTimeout(() => {
+    this.downloading = false;
+  }, 2000);
 }
 
 

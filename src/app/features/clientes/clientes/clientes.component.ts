@@ -49,7 +49,7 @@ showModal = false;
 
     this.clientService.getClients(params).subscribe({
       next: (data) => {
-        console.log('Clientes carregados:', data); // Debug
+        // console.log('Clientes carregados:', data); // Debug
         this.clients = data;
         this.filteredClients = data;
         this.calculateStats();

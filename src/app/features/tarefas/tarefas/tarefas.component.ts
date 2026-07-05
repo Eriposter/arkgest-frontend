@@ -59,7 +59,7 @@ showViewModal = false;
     
     request$.subscribe({
       next: (data) => {
-        console.log('Tarefas carregadas:', data);
+        // console.log('Tarefas carregadas:', data);
         this.tasks = data;
         this.filteredTasks = data;
         this.calculateStats();

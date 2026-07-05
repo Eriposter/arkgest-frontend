@@ -8,7 +8,7 @@ import { User } from '../../models/user.model';
 
 // Mapeamento de permissões por Role
 const ROLE_PERMISSIONS: { [key: string]: string[] } = {
-  'admin': ['dashboard', 'projetos', 'tarefas', 'clientes', 'documentos', 'faturas', 'calendario', 'relatorios', 'utilizadores', 'configuracoes', 'perfil'],
+  'admin': ['dashboard', 'projetos', 'tarefas', 'clientes', 'documentos', 'faturas', 'calendario', 'relatorios', 'utilizadores', 'configuracoes', 'perfil', 'audit'],
   'gestor': ['dashboard', 'projetos', 'tarefas', 'clientes', 'documentos', 'faturas', 'calendario', 'relatorios', 'perfil'],
   'arquiteto': ['dashboard', 'projetos', 'tarefas', 'documentos', 'calendario', 'perfil'],
   'estagiario': ['dashboard', 'tarefas', 'documentos', 'perfil']
@@ -83,6 +83,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
       { name: 'Perfil', icon: 'user', route: '/perfil' },
       { name: 'Configurações', icon: 'settings', route: '/configuracoes' },
       { name: 'Utilizadores', icon: 'users', route: '/utilizadores' },
+      { name: 'Logs de Auditoria', icon: 'audit', route: '/audit' },
     ];
 
     this.menuItems = allMenuItems.filter(item => {

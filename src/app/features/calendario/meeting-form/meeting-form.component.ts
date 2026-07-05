@@ -104,7 +104,7 @@ export class MeetingFormComponent implements OnInit {
         // Laravel retorna 'meeting_participants' (snake_case)
         const participants = meeting.meeting_participants || meeting.meetingParticipants || [];
 
-        console.log('📋 Participantes carregados:', participants);
+        // console.log('📋 Participantes carregados:', participants);
 
         // Limpar arrays
         this.internalParticipants.clear();
@@ -114,8 +114,8 @@ export class MeetingFormComponent implements OnInit {
         const internal = participants.filter((p: any) => p.participant_type === 'user');
         const external = participants.filter((p: any) => p.participant_type === 'guest');
 
-        console.log('👥 Internos:', internal);
-        console.log('📧 Externos:', external);
+        // console.log('👥 Internos:', internal);
+        // console.log('📧 Externos:', external);
 
         // Adicionar participantes internos
         internal.forEach((p: any) => {
@@ -193,7 +193,7 @@ export class MeetingFormComponent implements OnInit {
     this.loading = true;
     const data = { ...this.form.value };
 
-    console.log('📤 Dados a enviar:', data);
+    // console.log('📤 Dados a enviar:', data);
 
     const request$ = this.isEditing 
       ? this.meetingService.updateMeeting(this.meetingId!, data)
@@ -201,7 +201,7 @@ export class MeetingFormComponent implements OnInit {
 
     request$.subscribe({
       next: (response) => {
-        console.log('✅ Reunião salva:', response);
+        // console.log('✅ Reunião salva:', response);
         this.router.navigate(['/calendario']);
       },
       error: (err) => {

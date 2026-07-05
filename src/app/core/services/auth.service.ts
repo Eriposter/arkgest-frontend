@@ -27,7 +27,7 @@ export class AuthService {
     if (stored) {
       try {
         const user = JSON.parse(stored);
-        console.log('👤 User carregado do localStorage:', user); // ← DEBUG
+        // console.log('👤 User carregado do localStorage:', user); // ← DEBUG
         this.userSubject.next(user);
       } catch (e) {
         console.error('Erro ao parsear user do localStorage', e);
@@ -40,7 +40,7 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).pipe(
       tap({
         next: (response) => {
-          console.log('🔐 Resposta do login:', response); // ← DEBUG
+          // console.log('🔐 Resposta do login:', response); // ← DEBUG
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response.user));
           this.userSubject.next(response.user);

@@ -115,7 +115,7 @@ export class ClienteFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.invalid) {
-      console.log('Formulário inválido', this.form.errors);
+      // console.log('Formulário inválido', this.form.errors);
       this.form.markAllAsTouched();
       return;
     }
