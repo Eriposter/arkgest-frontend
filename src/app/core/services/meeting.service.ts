@@ -77,6 +77,12 @@ export class MeetingService {
     return labels[status] || status;
   }
 
+  getMeetingsByPeriod(startDate: string, endDate: string, type?: string): Observable<any[]> {
+  let params: any = { start_date: startDate, end_date: endDate };
+  if (type) params.type = type;
+  return this.http.get<any[]>(`${this.apiUrl}/calendar`, { params });
+}
+
   formatDateTime(dateString: string): string {
     return new Date(dateString).toLocaleString('pt-PT', {
       day: '2-digit', month: '2-digit', year: 'numeric',
