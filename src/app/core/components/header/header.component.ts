@@ -4,8 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { UserMenuComponent } from '../user-menu/user-menu.component';
 import { NotificationService } from '../../services/notification.service';
+import { WebSocketService } from '../../services/websocket.service';
+import { AuthService } from '../../services/auth.service';
 import { Notification } from '../../models/notification.model';
 import { GlobalSearchComponent } from '../global-search/global-search.component';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -27,12 +30,26 @@ export class HeaderComponent implements OnInit {
   showNotifications = false;
   notifications: Notification[] = [];
   unreadCount = 0;
+  hasNewNotification = false;
 
-  constructor(private notificationService: NotificationService) {}
+  private subscriptions: Subscription[] = [];
+
+  constructor(
+    private notificationService: NotificationService,
+    private webSocketService: WebSocketService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadNotifications();
+    this.setupWebSocket();
   }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.webSocketService.leaveAllChannels();
+  }
+
 
   loadNotifications(): void {
     this.notificationService.getNotifications().subscribe({
@@ -44,22 +61,52 @@ export class HeaderComponent implements OnInit {
     });
   }
 
+  // ✅ Configurar WebSocket
+  setupWebSocket(): void {
+    const user = this.authService.getUser();
+    if (user?.id) {
+      // Ouvir notificações do utilizador
+      this.webSocketService.listenToUserNotifications(user.id);
+
+      // Subscrever ao observable de novas notificações
+      const sub = this.webSocketService.onNewNotification().subscribe({
+        next: (notification) => {
+          console.log('🔔 Nova notificação no header:', notification);
+          this.hasNewNotification = true;
+          
+          // Animar o ícone de notificação
+          setTimeout(() => {
+            this.hasNewNotification = false;
+          }, 3000);
+        }
+      });
+      this.subscriptions.push(sub);
+
+      // Subscrever ao refresh do service
+      const refreshSub = this.notificationService.onRefresh().subscribe(() => {
+        this.loadNotifications();
+      });
+      this.subscriptions.push(refreshSub);
+    }
+  }
+
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
   }
 
   markAsRead(notification: Notification): void {
-    if (!notification.read_at) {
-      this.notificationService.markAsRead(notification.id).subscribe({
-        next: () => this.loadNotifications()
-      });
-    }
+  if (!notification.read_at) {
+    this.notificationService.markAsRead(Number(notification.id)).subscribe({
+      next: () => this.loadNotifications()
+    });
   }
+}
 
   getIconColor(type: string): string {
     switch(type) {
       case 'task': return 'bg-blue-100 text-blue-600';
       case 'invoice': return 'bg-green-100 text-green-600';
+      case 'meeting': return 'bg-amber-100 text-amber-600';
       default: return 'bg-gray-100 text-gray-600';
     }
   }

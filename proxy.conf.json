@@ -4,5 +4,17 @@
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
+  },
+  "/broadcasting": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/reverb": {
+    "target": "ws://localhost:8080",
+    "ws": true,
+    "secure": false,
+    "changeOrigin": true
   }
 }
