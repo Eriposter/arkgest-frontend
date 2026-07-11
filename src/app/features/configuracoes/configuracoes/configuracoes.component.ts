@@ -2,16 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import { SettingService } from '../../../core/services/setting.service';
+import { LicenseInfoComponent } from '../../settings/license-info/license-info.component';
+
 
 @Component({
   selector: 'app-configuracoes',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LicenseInfoComponent],
   templateUrl: './configuracoes.component.html'
 })
 export class ConfiguracoesComponent implements OnInit {
   form: FormGroup;
-  activeTab: 'empresa' | 'faturacao' | 'sistema' = 'empresa';
+  activeTab: 'empresa' | 'faturacao' | 'license' | 'sistema' = 'empresa';
   loading = false;
   logoPreview: string | null = null;
   selectedLogo: File | null = null;

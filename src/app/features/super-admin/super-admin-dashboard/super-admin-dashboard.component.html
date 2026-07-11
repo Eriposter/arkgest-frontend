@@ -1,0 +1,225 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">Painel Super Admin</h1>
+            <p class="text-gray-500">Gestão de empresas, licenças e faturação</p>
+          </div>
+        </div>
+      </div>
+      <a routerLink="/super-admin/tenants/novo" 
+         class="inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Nova Empresa
+      </a>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <div *ngIf="!loading && stats" class="space-y-6">
+      
+      <!-- KPIs Principais -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        
+        <!-- Total de Tenants -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-all">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-gray-900">{{ stats.tenants.total }}</p>
+          <p class="text-sm text-gray-500 mt-1">Total de Empresas</p>
+        </div>
+
+        <!-- Tenants Ativos -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-all">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-emerald-600">{{ stats.tenants.active }}</p>
+          <p class="text-sm text-gray-500 mt-1">Empresas Ativas</p>
+        </div>
+
+        <!-- Tenants Trial -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-all">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-blue-600">{{ stats.tenants.trial }}</p>
+          <p class="text-sm text-gray-500 mt-1">Em Trial</p>
+        </div>
+
+        <!-- Tenants Suspensos -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-all">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+          </div>
+          <p class="text-3xl font-bold text-red-600">{{ stats.tenants.suspended }}</p>
+          <p class="text-sm text-gray-500 mt-1">Suspensos</p>
+        </div>
+      </div>
+
+      <!-- Receitas -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl shadow-lg p-6 text-white">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+              </svg>
+            </div>
+            <p class="text-sm font-medium text-white/80">Este Mês</p>
+          </div>
+          <p class="text-3xl font-bold">{{ stats.revenue.this_month | number:'1.0-0' }} AOA</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+            <p class="text-sm font-medium text-white/80">Este Ano</p>
+          </div>
+          <p class="text-3xl font-bold">{{ stats.revenue.this_year | number:'1.0-0' }} AOA</p>
+        </div>
+
+        <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg p-6 text-white">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <p class="text-sm font-medium text-white/80">Total Histórico</p>
+          </div>
+          <p class="text-3xl font-bold">{{ stats.revenue.total | number:'1.0-0' }} AOA</p>
+        </div>
+      </div>
+
+      <!-- Recursos e Distribuição -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Recursos Totais -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Recursos Totais</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+              <p class="text-xs text-indigo-600 font-medium uppercase">Utilizadores</p>
+              <p class="text-2xl font-bold text-indigo-900 mt-1">{{ stats.users.total }}</p>
+              <p class="text-xs text-indigo-500 mt-1">{{ stats.users.active }} ativos</p>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-4 border border-purple-100">
+              <p class="text-xs text-purple-600 font-medium uppercase">Projetos</p>
+              <p class="text-2xl font-bold text-purple-900 mt-1">{{ stats.resources.projects }}</p>
+            </div>
+            <div class="bg-emerald-50 rounded-lg p-4 border border-emerald-100">
+              <p class="text-xs text-emerald-600 font-medium uppercase">Clientes</p>
+              <p class="text-2xl font-bold text-emerald-900 mt-1">{{ stats.resources.clients }}</p>
+            </div>
+            <div class="bg-amber-50 rounded-lg p-4 border border-amber-100">
+              <p class="text-xs text-amber-600 font-medium uppercase">Faturas</p>
+              <p class="text-2xl font-bold text-amber-900 mt-1">{{ stats.resources.invoices }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distribuição por Plano -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Distribuição por Plano</h3>
+          <div class="space-y-3">
+            <div *ngFor="let plan of ['basic', 'professional', 'enterprise']" class="flex items-center gap-3">
+              <div class="flex-1">
+                <div class="flex justify-between items-center mb-1">
+                  <span class="text-sm font-medium text-gray-700 capitalize">{{ plan }}</span>
+                  <span class="text-sm font-bold text-gray-900">{{ stats.by_plan[plan] || 0 }}</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2">
+                  <div class="h-2 rounded-full transition-all"
+                       [class.bg-blue-500]="plan === 'basic'"
+                       [class.bg-purple-500]="plan === 'professional'"
+                       [class.bg-amber-500]="plan === 'enterprise'"
+                       [style.width.%]="(stats.by_plan[plan] || 0) / (stats.tenants.total || 1) * 100">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ações Rápidas -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a routerLink="/super-admin/tenants" 
+           class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+              <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900">Gerir Empresas</h3>
+              <p class="text-sm text-gray-500">Ver, criar e editar empresas</p>
+            </div>
+          </div>
+        </a>
+
+        <a routerLink="/super-admin/licenses" 
+           class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+              <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900">Licenças</h3>
+              <p class="text-sm text-gray-500">Gerir licenças e subscrições</p>
+            </div>
+          </div>
+        </a>
+
+        <a routerLink="/super-admin/tenants/novo" 
+           class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+              <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900">Nova Empresa</h3>
+              <p class="text-sm text-gray-500">Criar nova empresa no sistema</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

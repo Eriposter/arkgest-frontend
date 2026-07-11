@@ -6,6 +6,8 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 import { routes } from './app.routes';
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
+import { LicenseInterceptor } from './core/interceptors/license.interceptor';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,6 +18,11 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LicenseInterceptor,
       multi: true
     }
   ]

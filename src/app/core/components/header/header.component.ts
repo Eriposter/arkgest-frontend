@@ -1,15 +1,14 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, Output, EventEmitter, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { UserMenuComponent } from '../user-menu/user-menu.component';
+import { GlobalSearchComponent } from '../global-search/global-search.component';
 import { NotificationService } from '../../services/notification.service';
 import { WebSocketService } from '../../services/websocket.service';
 import { AuthService } from '../../services/auth.service';
 import { Notification } from '../../models/notification.model';
-import { GlobalSearchComponent } from '../global-search/global-search.component';
-import { Subscription } from 'rxjs';
-
 
 @Component({
   selector: 'app-header',
@@ -19,19 +18,21 @@ import { Subscription } from 'rxjs';
     FormsModule, 
     RouterModule, 
     UserMenuComponent,
-    GlobalSearchComponent // ✅ ADICIONAR
+    GlobalSearchComponent
   ],
   templateUrl: './header.component.html'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   @Output() toggleSidebar = new EventEmitter<void>();
-  @ViewChild(GlobalSearchComponent) globalSearch!: GlobalSearchComponent; // ✅ ADICIONAR
+  @ViewChild(GlobalSearchComponent) globalSearch!: GlobalSearchComponent;
+  
   searchQuery = '';
   showNotifications = false;
   notifications: Notification[] = [];
   unreadCount = 0;
   hasNewNotification = false;
-
+  isSuperAdmin = false;
+  
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -43,6 +44,7 @@ export class HeaderComponent implements OnInit {
   ngOnInit(): void {
     this.loadNotifications();
     this.setupWebSocket();
+    this.checkSuperAdmin();
   }
 
   ngOnDestroy(): void {
@@ -50,6 +52,10 @@ export class HeaderComponent implements OnInit {
     this.webSocketService.leaveAllChannels();
   }
 
+  checkSuperAdmin(): void {
+  const user = this.authService.getUser();
+  this.isSuperAdmin = user?.role?.includes('super-admin') || false;
+}
 
   loadNotifications(): void {
     this.notificationService.getNotifications().subscribe({
@@ -61,28 +67,19 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  // ✅ Configurar WebSocket
   setupWebSocket(): void {
     const user = this.authService.getUser();
     if (user?.id) {
-      // Ouvir notificações do utilizador
       this.webSocketService.listenToUserNotifications(user.id);
 
-      // Subscrever ao observable de novas notificações
       const sub = this.webSocketService.onNewNotification().subscribe({
         next: (notification) => {
-          console.log('🔔 Nova notificação no header:', notification);
           this.hasNewNotification = true;
-          
-          // Animar o ícone de notificação
-          setTimeout(() => {
-            this.hasNewNotification = false;
-          }, 3000);
+          setTimeout(() => this.hasNewNotification = false, 3000);
         }
       });
       this.subscriptions.push(sub);
 
-      // Subscrever ao refresh do service
       const refreshSub = this.notificationService.onRefresh().subscribe(() => {
         this.loadNotifications();
       });
@@ -95,12 +92,18 @@ export class HeaderComponent implements OnInit {
   }
 
   markAsRead(notification: Notification): void {
-  if (!notification.read_at) {
-    this.notificationService.markAsRead(Number(notification.id)).subscribe({
-      next: () => this.loadNotifications()
-    });
+    if (!notification.read_at) {
+        this.notificationService.markAsRead(Number(notification.id)).subscribe({
+        next: () => this.loadNotifications()
+      });
+    }
   }
-}
+
+  openSearch(): void {
+    if (this.globalSearch) {
+      this.globalSearch.open();
+    }
+  }
 
   getIconColor(type: string): string {
     switch(type) {
@@ -108,12 +111,6 @@ export class HeaderComponent implements OnInit {
       case 'invoice': return 'bg-green-100 text-green-600';
       case 'meeting': return 'bg-amber-100 text-amber-600';
       default: return 'bg-gray-100 text-gray-600';
-    }
-  }
-
-  openSearch(): void {
-    if (this.globalSearch) {
-      this.globalSearch.open();
     }
   }
 }

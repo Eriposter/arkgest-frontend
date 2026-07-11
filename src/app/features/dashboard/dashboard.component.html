@@ -1,8 +1,30 @@
 <div class="py-6">
-  <!-- Cabeçalho -->
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-    <p class="text-sm text-gray-500 mt-1">Visão geral do seu negócio</p>
+  <!-- Cabeçalho com botão de refresh -->
+  <div class="mb-8 flex justify-between items-start">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <p class="text-sm text-gray-500 mt-1">Visão geral do seu negócio</p>
+    </div>
+    <button 
+      (click)="refreshDashboard()" 
+      [disabled]="loading"
+      class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+    >
+      <svg class="h-4 w-4 mr-2" [class.animate-spin]="loading" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      Atualizar
+    </button>
+  </div>
+
+  <!-- Mensagem de Erro -->
+  <div *ngIf="error" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+    <div class="flex items-center">
+      <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+      </svg>
+      {{ error }}
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -11,12 +33,12 @@
     <p class="ml-3 text-gray-500">Carregando dados...</p>
   </div>
 
-  <div *ngIf="!loading">
+  <div *ngIf="!loading && !error">
     <!-- Cards de Estatísticas -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
       
       <!-- Projetos Ativos -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Projetos Ativos</p>
@@ -29,12 +51,15 @@
           </div>
         </div>
         <a routerLink="/projetos" class="mt-4 inline-flex items-center text-sm font-medium text-indigo-600 hover:text-indigo-500">
-          Ver todos <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          Ver todos 
+          <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
         </a>
       </div>
 
       <!-- Minhas Tarefas -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Minhas Tarefas</p>
@@ -47,12 +72,15 @@
           </div>
         </div>
         <a routerLink="/tarefas" class="mt-4 inline-flex items-center text-sm font-medium text-yellow-600 hover:text-yellow-500">
-          Ver tarefas <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          Ver tarefas 
+          <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
         </a>
       </div>
 
       <!-- Documentos -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Documentos</p>
@@ -65,12 +93,15 @@
           </div>
         </div>
         <a routerLink="/documentos" class="mt-4 inline-flex items-center text-sm font-medium text-green-600 hover:text-green-500">
-          Ver documentos <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          Ver documentos 
+          <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
         </a>
       </div>
 
       <!-- Reuniões Hoje -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-500">Reuniões Hoje</p>
@@ -83,7 +114,10 @@
           </div>
         </div>
         <a routerLink="/calendario" class="mt-4 inline-flex items-center text-sm font-medium text-purple-600 hover:text-purple-500">
-          Ver agenda <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          Ver agenda 
+          <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
         </a>
       </div>
     </div>
@@ -104,17 +138,17 @@
         </div>
         
         <div class="p-6">
-          <div *ngFor="let project of stats.recent_projects" class="bg-gray-50 rounded-lg p-4 border border-gray-100 mb-3 last:mb-0">
+          <div *ngFor="let project of stats.recent_projects" class="bg-gray-50 rounded-lg p-4 border border-gray-100 mb-3 last:mb-0 hover:bg-gray-100 transition-colors duration-150">
             <div class="flex justify-between items-start">
               <div>
                 <h3 class="text-base font-semibold text-gray-900">{{ project.name }}</h3>
                 <p class="text-sm text-gray-500 mt-1">Cliente: {{ project.client?.name || 'N/A' }}</p>
               </div>
-            </div>
-            <div class="mt-3 flex items-center gap-3">
-              <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
+              <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium" [class]="getStatusBadge(project.status)">
                 {{ project.status }}
               </span>
+            </div>
+            <div class="mt-3 flex items-center gap-3">
               <span class="text-xs text-gray-500">Fase: {{ getPhaseLabel(project.phase) }}</span>
             </div>
           </div>
@@ -138,12 +172,22 @@
         </div>
         
         <div class="p-6">
-          <div *ngFor="let task of stats.my_tasks" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3 last:mb-0 border border-gray-100">
+          <div *ngFor="let task of stats.my_tasks" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3 last:mb-0 border border-gray-100 hover:bg-gray-100 transition-colors duration-150">
             <div>
               <p class="text-sm font-medium text-gray-900">{{ task.title }}</p>
-              <p class="text-xs text-gray-500">{{ task.project?.name }}</p>
+              <p class="text-xs text-gray-500">{{ task.project?.name || 'Sem projeto' }}</p>
             </div>
-            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-800">
+            <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium" [class]="getPriorityBadge(task.priority)">
               {{ task.priority }}
             </span>
-         
+          </div>
+
+          <div *ngIf="stats.my_tasks.length === 0" class="text-center py-8 text-gray-500">
+            Nenhuma tarefa pendente
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

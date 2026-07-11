@@ -14,8 +14,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return false;
   }
 
-  // Se não houver roles definidas na rota, permite acesso a qualquer autenticado
-  if (!requiredRoles || requiredRoles.length === 0) {
+   if (!requiredRoles || requiredRoles.length === 0) {
     return true;
   }
 
@@ -23,7 +22,13 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Redirecionar para dashboard se não tiver permissão
+  // Se for super-admin e tentar aceder a rota normal, redirecionar para super-admin
+  if (user.role === 'super-admin') {
+    router.navigate(['/super-admin']);
+    return false;
+  }
+
+  // Se for utilizador normal e tentar aceder a rota do super-admin, redirecionar para dashboard
   router.navigate(['/dashboard']);
   return false;
 };

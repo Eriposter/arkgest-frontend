@@ -1,0 +1,98 @@
+<div class="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex items-center justify-center p-4">
+  <div class="max-w-2xl w-full">
+    
+    <!-- Card Principal -->
+    <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+      
+      <!-- Header com gradiente -->
+      <div class="bg-gradient-to-br from-indigo-500 to-purple-600 px-8 py-10 text-white text-center">
+        <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h1 class="text-3xl font-bold mb-2">Acesso Bloqueado</h1>
+        <p class="text-white/90">A licença da sua empresa expirou</p>
+      </div>
+
+      <!-- Conteúdo -->
+      <div class="px-8 py-8">
+        
+        <!-- Saudação -->
+        <div class="text-center mb-6">
+          <p class="text-gray-700">
+            Olá <strong>{{ userName }}</strong>, a licença da empresa 
+            <strong class="text-indigo-600">{{ licenseInfo?.tenant_name || 'sua empresa' }}</strong> 
+            expirou.
+          </p>
+        </div>
+
+        <!-- Info da Licença -->
+        <div *ngIf="licenseInfo" class="bg-gray-50 rounded-xl p-5 mb-6 border border-gray-200">
+          <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Detalhes da Licença
+          </h3>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="text-gray-500">Plano</p>
+              <p class="font-semibold text-gray-900 capitalize">{{ licenseInfo.plan }}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Expirou em</p>
+              <p class="font-semibold text-red-600">{{ licenseInfo.expired_at }}</p>
+            </div>
+            <div class="col-span-2">
+              <p class="text-gray-500">Dias em atraso</p>
+              <p class="font-semibold text-red-600 text-lg">{{ licenseInfo.days_expired }} dias</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- O que fazer -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-6">
+          <h3 class="text-sm font-semibold text-blue-900 mb-2">💡 O que fazer?</h3>
+          <p class="text-sm text-blue-800 mb-3">
+            Para reativar o acesso ao sistema, entre em contacto com o administrador do ArkGest para renovar a licença da sua empresa.
+          </p>
+          <div class="space-y-2 text-sm text-blue-800">
+            <div class="flex items-start gap-2">
+              <span class="font-bold">📧</span>
+              <span>Email: <strong>suporte&#64;arkgest.com</strong></span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="font-bold">📞</span>
+              <span>Telefone: <strong>+244 923 000 000</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aviso -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+          <p class="text-xs text-amber-800">
+            ⚠️ <strong>Nota:</strong> Os seus dados estão seguros e serão preservados. Após a renovação, terá acesso imediato a todos os projetos, clientes e histórico.
+          </p>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button (click)="logout()" 
+                  class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
+            Sair da Conta
+          </button>
+          <a href="mailto:suporte@arkgest.com?subject=Renovação de Licença"
+             class="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium hover:from-indigo-700 hover:to-purple-700 transition-all text-center">
+            📧 Contactar Suporte
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <p class="text-center text-sm text-gray-500 mt-6">
+      © 2026 ArkGest - Sistema de Gestão para Arquitetura
+    </p>
+  </div>
+</div>

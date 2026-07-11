@@ -7,7 +7,9 @@ import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
 
 // Mapeamento de permissões por Role
+// Mapeamento de permissões por Role
 const ROLE_PERMISSIONS: { [key: string]: string[] } = {
+  'super-admin': ['super-admin-panel', 'tenants', 'licenses'],
   'admin': ['dashboard', 'projetos', 'tarefas', 'clientes', 'documentos', 'faturas', 'calendario', 'relatorios', 'utilizadores', 'configuracoes', 'perfil', 'audit'],
   'gestor': ['dashboard', 'projetos', 'tarefas', 'clientes', 'documentos', 'faturas', 'calendario', 'relatorios', 'perfil'],
   'arquiteto': ['dashboard', 'projetos', 'tarefas', 'documentos', 'calendario', 'perfil'],
@@ -18,6 +20,7 @@ interface MenuItem {
   name: string;
   icon: string;
   route: string;
+  permission?: string;
   badge?: number;
   badgeColor?: string;
 }
@@ -39,6 +42,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   
   menuItems: MenuItem[] = [];
   systemItems: MenuItem[] = [];
+  superItems: MenuItem[] = [];
 
   private subscriptions: Subscription[] = [];
 
@@ -66,36 +70,45 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   filterMenuByRole(): void {
-    const allowedRoutes = ROLE_PERMISSIONS[this.userRole] || [];
+  const allowedRoutes = ROLE_PERMISSIONS[this.userRole] || [];
 
-    const allMenuItems: MenuItem[] = [
-      { name: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-      { name: 'Projetos', icon: 'projects', route: '/projetos' },
-      { name: 'Tarefas', icon: 'tasks', route: '/tarefas', badgeColor: 'bg-red-500' },
-      { name: 'Clientes', icon: 'clients', route: '/clientes', badgeColor: 'bg-yellow-500' },
-      { name: 'Documentos', icon: 'documents', route: '/documentos' },
-      { name: 'Faturas', icon: 'invoices', route: '/faturas', badgeColor: 'bg-orange-500' },
-      { name: 'Calendário', icon: 'calendar', route: '/calendario' },
-      { name: 'Relatórios', icon: 'reports', route: '/relatorios' },
-    ];
+  const allMenuItems: MenuItem[] = [
+    { name: 'Dashboard', icon: 'dashboard', route: '/dashboard', permission: 'dashboard' },
+    { name: 'Projetos', icon: 'projects', route: '/projetos', permission: 'projetos' },
+    { name: 'Tarefas', icon: 'tasks', route: '/tarefas', permission: 'tarefas', badgeColor: 'bg-red-500' },
+    { name: 'Clientes', icon: 'clients', route: '/clientes', permission: 'clientes', badgeColor: 'bg-yellow-500' },
+    { name: 'Documentos', icon: 'documents', route: '/documentos', permission: 'documentos' },
+    { name: 'Faturas', icon: 'invoices', route: '/faturas', permission: 'faturas', badgeColor: 'bg-orange-500' },
+    { name: 'Calendário', icon: 'calendar', route: '/calendario', permission: 'calendario' },
+    { name: 'Relatórios', icon: 'reports', route: '/relatorios', permission: 'relatorios' },
+  ];
 
-    const allSystemItems: MenuItem[] = [
-      { name: 'Perfil', icon: 'user', route: '/perfil' },
-      { name: 'Configurações', icon: 'settings', route: '/configuracoes' },
-      { name: 'Utilizadores', icon: 'users', route: '/utilizadores' },
-      { name: 'Logs de Auditoria', icon: 'audit', route: '/audit' },
-    ];
+  const superAdminMenus: MenuItem[] = [
+    { name: 'Painel Super Admin', icon: 'super-admin', route: '/super-admin', permission: 'super-admin-panel' },
+    { name: 'Empresas', icon: 'building', route: '/super-admin/tenants', permission: 'tenants' },
+    { name: 'Licenças', icon: 'license', route: '/super-admin/licenses', permission: 'licenses' },
+  ];
 
-    this.menuItems = allMenuItems.filter(item => {
-      const routeKey = item.route.replace('/', '');
-      return allowedRoutes.includes(routeKey);
-    });
+  const allSystemItems: MenuItem[] = [
+    { name: 'Perfil', icon: 'user', route: '/perfil', permission: 'perfil' },
+    { name: 'Configurações', icon: 'settings', route: '/configuracoes', permission: 'configuracoes' },
+    { name: 'Utilizadores', icon: 'users', route: '/utilizadores', permission: 'utilizadores' },
+    { name: 'Logs de Auditoria', icon: 'audit', route: '/audit', permission: 'audit' },
+  ];
 
-    this.systemItems = allSystemItems.filter(item => {
-      const routeKey = item.route.replace('/', '');
-      return allowedRoutes.includes(routeKey);
-    });
-  }
+  // Filtrar usando permission em vez de route
+  this.menuItems = allMenuItems.filter(item => 
+    allowedRoutes.includes(item.permission || '')
+  );
+
+  this.systemItems = allSystemItems.filter(item => 
+    allowedRoutes.includes(item.permission || '')
+  );
+
+  this.superItems = superAdminMenus.filter(item => 
+    allowedRoutes.includes(item.permission || '')
+  );
+}
 
   loadBadges(): void {
     const sub = this.http.get<any>('/api/dashboard/stats').subscribe({

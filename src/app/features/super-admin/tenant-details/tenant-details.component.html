@@ -1,0 +1,441 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Loading -->
+    <div *ngIf="loading" class="flex justify-center items-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <div *ngIf="!loading && tenant" class="space-y-6">
+      
+      <!-- Header -->
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <a routerLink="/super-admin/tenants" class="p-2 hover:bg-gray-100 rounded-lg">
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </a>
+          <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">
+            {{ tenant.name.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ tenant.name }}</h1>
+            <p class="text-gray-500 flex items-center gap-2">
+              <span>{{ tenant.company_name }}</span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border"
+                    [ngClass]="superAdminService.getStatusBadge(tenant.status)">
+                {{ superAdminService.getStatusLabel(tenant.status) }}
+              </span>
+            </p>
+          </div>
+        </div>
+        
+        <div class="flex gap-2">
+          <a [routerLink]="['/super-admin/tenants', tenant.id, 'editar']"
+   class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 flex items-center gap-2">
+  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+  </svg>
+  Editar
+</a>
+          <button (click)="toggleStatus()"
+                  class="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600">
+            {{ tenant.status === 'active' ? '⏸ Suspender' : '▶️ Ativar' }}
+          </button>
+          <button (click)="deleteTenant()"
+                  class="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600">
+            🗑️ Eliminar
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="border-b border-gray-200">
+          <nav class="flex -mb-px">
+            <button (click)="switchTab('overview')"
+                    [class.border-indigo-500]="activeTab === 'overview'"
+                    [class.text-indigo-600]="activeTab === 'overview'"
+                    [class.text-gray-500]="activeTab !== 'overview'"
+                    class="px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:text-gray-700">
+              📊 Visão Geral
+            </button>
+            <button (click)="switchTab('users')"
+                    [class.border-indigo-500]="activeTab === 'users'"
+                    [class.text-indigo-600]="activeTab === 'users'"
+                    [class.text-gray-500]="activeTab !== 'users'"
+                    class="px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:text-gray-700">
+              👥 Utilizadores ({{ users.length }})
+            </button>
+            <button (click)="switchTab('licenses')"
+                    [class.border-indigo-500]="activeTab === 'licenses'"
+                    [class.text-indigo-600]="activeTab === 'licenses'"
+                    [class.text-gray-500]="activeTab !== 'licenses'"
+                    class="px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:text-gray-700">
+              🔑 Licenças ({{ licenses.length }})
+            </button>
+            <button (click)="switchTab('info')"
+                    [class.border-indigo-500]="activeTab === 'info'"
+                    [class.text-indigo-600]="activeTab === 'info'"
+                    [class.text-gray-500]="activeTab !== 'info'"
+                    class="px-6 py-4 text-sm font-medium border-b-2 border-transparent hover:text-gray-700">
+              ℹ️ Informações
+            </button>
+          </nav>
+        </div>
+
+        <div class="p-6">
+          
+          <!-- ============================================ -->
+          <!-- TAB: VISÃO GERAL -->
+          <!-- ============================================ -->
+          <div *ngIf="activeTab === 'overview'" class="space-y-6">
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                <p class="text-xs text-blue-700 font-medium uppercase">Utilizadores</p>
+                <p class="text-2xl font-bold text-blue-900 mt-1">{{ stats.total_users }}</p>
+                <p class="text-xs text-blue-600 mt-1">{{ stats.active_users }} ativos</p>
+              </div>
+              <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                <p class="text-xs text-purple-700 font-medium uppercase">Projetos</p>
+                <p class="text-2xl font-bold text-purple-900 mt-1">{{ stats.total_projects }}</p>
+                <p class="text-xs text-purple-600 mt-1">/ {{ tenant.max_projects }} máximo</p>
+              </div>
+              <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 border border-emerald-200">
+                <p class="text-xs text-emerald-700 font-medium uppercase">Clientes</p>
+                <p class="text-2xl font-bold text-emerald-900 mt-1">{{ stats.total_clients }}</p>
+              </div>
+              <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 border border-amber-200">
+                <p class="text-xs text-amber-700 font-medium uppercase">Receita Total</p>
+                <p class="text-2xl font-bold text-amber-900 mt-1">{{ stats.revenue_total | number:'1.0-0' }}</p>
+                <p class="text-xs text-amber-600 mt-1">AOA faturado</p>
+              </div>
+            </div>
+
+            <!-- Uso de Recursos -->
+            <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4">📈 Uso de Recursos</h3>
+              <div class="space-y-4">
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="font-medium text-gray-700">Utilizadores</span>
+                    <span class="text-gray-600">{{ tenant.current_users }} / {{ tenant.max_users }}</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-500 h-2 rounded-full transition-all"
+                         [style.width.%]="(tenant.current_users / tenant.max_users) * 100"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="font-medium text-gray-700">Projetos</span>
+                    <span class="text-gray-600">{{ tenant.current_projects }} / {{ tenant.max_projects }}</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-purple-500 h-2 rounded-full transition-all"
+                         [style.width.%]="(tenant.current_projects / tenant.max_projects) * 100"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="font-medium text-gray-700">Armazenamento</span>
+                    <span class="text-gray-600">{{ tenant.current_storage_mb }} MB / {{ tenant.max_storage_mb }} MB</span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-emerald-500 h-2 rounded-full transition-all"
+                         [style.width.%]="(tenant.current_storage_mb / tenant.max_storage_mb) * 100"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Plano Atual -->
+            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl p-6 text-white">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-white/80">Plano Atual</p>
+                  <p class="text-2xl font-bold mt-1">{{ superAdminService.getPlanLabel(tenant.plan) }}</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-white/80">Validade</p>
+                  <p class="text-lg font-bold mt-1">
+                    {{ superAdminService.formatDate(tenant.subscription_ends_at || tenant.trial_ends_at) }}
+                  </p>
+                  <p *ngIf="getDaysRemaining(tenant.subscription_ends_at || tenant.trial_ends_at) as days"
+                     class="text-xs mt-1"
+                     [class.text-emerald-300]="days > 30"
+                     [class.text-amber-300]="days <= 30 && days > 0"
+                     [class.text-red-300]="days <= 0">
+                    {{ days > 0 ? days + ' dias restantes' : 'Expirado' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================ -->
+          <!-- TAB: UTILIZADORES -->
+          <!-- ============================================ -->
+          <div *ngIf="activeTab === 'users'">
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nome</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Desde</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <tr *ngFor="let user of users" class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-sm font-bold">
+                          {{ user.name.charAt(0).toUpperCase() }}
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">{{ user.name }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ user.email }}</td>
+                    <td class="px-6 py-4">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize bg-indigo-100 text-indigo-700">
+                        {{ user.role }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                            [class.bg-emerald-100]="user.is_active"
+                            [class.text-emerald-700]="user.is_active"
+                            [class.bg-gray-100]="!user.is_active"
+                            [class.text-gray-700]="!user.is_active">
+                        {{ user.is_active ? 'Ativo' : 'Inativo' }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">{{ superAdminService.formatDate(user.created_at) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ============================================ -->
+          <!-- TAB: LICENÇAS -->
+          <!-- ============================================ -->
+          <div *ngIf="activeTab === 'licenses'">
+            <div class="space-y-3">
+              <div *ngFor="let license of licenses" 
+                   class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                      <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-sm font-mono text-gray-600">{{ license.license_key }}</p>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border"
+                              [ngClass]="superAdminService.getPlanBadge(license.plan)">
+                          {{ superAdminService.getPlanLabel(license.plan) }}
+                        </span>
+                        <span class="text-xs text-gray-500">{{ superAdminService.getLicenseTypeLabel(license.type) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                          [ngClass]="superAdminService.getStatusBadge(license.status)">
+                      {{ superAdminService.getStatusLabel(license.status) }}
+                    </span>
+                    <p class="text-xs text-gray-500 mt-1">
+                      Expira: {{ superAdminService.formatDate(license.expires_at) }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="licenses.length === 0" class="text-center py-8 text-gray-500">
+                Nenhuma licença registada
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================ -->
+          <!-- TAB: INFORMAÇÕES -->
+          <!-- ============================================ -->
+          <div *ngIf="activeTab === 'info'">
+            
+            <!-- Modo Edição -->
+            <div *ngIf="editing" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                  <input type="text" [(ngModel)]="editForm.name" name="name"
+                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                  <input type="text" [(ngModel)]="editForm.slug" name="slug"
+                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Razão Social</label>
+                  <input type="text" [(ngModel)]="editForm.company_name" name="company_name"
+                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">NIF</label>
+                  <input type="text" [(ngModel)]="editForm.nif" name="nif"
+                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input type="email" [(ngModel)]="editForm.email" name="email"
+                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                  <input type="text" [(ngModel)]="editForm.phone" name="phone"
+                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="md:col-span-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                  <textarea [(ngModel)]="editForm.address" name="address" rows="2"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Plano</label>
+                  <select [(ngModel)]="editForm.plan" name="plan"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                    <option value="basic">Básico</option>
+                    <option value="professional">Profissional</option>
+                    <option value="enterprise">Empresarial</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select [(ngModel)]="editForm.status" name="status"
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                    <option value="active">Ativo</option>
+                    <option value="trial">Trial</option>
+                    <option value="suspended">Suspenso</option>
+                    <option value="cancelled">Cancelado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="flex justify-end gap-2 pt-4 border-t">
+                <button (click)="cancelEditing()"
+                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                  Cancelar
+                </button>
+                <button (click)="saveChanges()"
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                  💾 Guardar
+                </button>
+              </div>
+            </div>
+
+            <!-- Modo Visualização -->
+            <div *ngIf="!editing" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">📋 Dados da Empresa</h4>
+                <dl class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Nome:</dt>
+                    <dd class="font-medium text-gray-900">{{ tenant.name }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Slug:</dt>
+                    <dd class="font-mono text-gray-900">{{ tenant.slug }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Razão Social:</dt>
+                    <dd class="font-medium text-gray-900">{{ tenant.company_name || '-' }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">NIF:</dt>
+                    <dd class="font-mono text-gray-900">{{ tenant.nif || '-' }}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">📞 Contacto</h4>
+                <dl class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Email:</dt>
+                    <dd class="font-medium text-gray-900">{{ tenant.email }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Telefone:</dt>
+                    <dd class="font-medium text-gray-900">{{ tenant.phone || '-' }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Endereço:</dt>
+                    <dd class="font-medium text-gray-900 text-right max-w-xs">{{ tenant.address || '-' }}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">💳 Subscrição</h4>
+                <dl class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Plano:</dt>
+                    <dd>
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border"
+                            [ngClass]="superAdminService.getPlanBadge(tenant.plan)">
+                        {{ superAdminService.getPlanLabel(tenant.plan) }}
+                      </span>
+                    </dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Início:</dt>
+                    <dd class="font-medium text-gray-900">{{ superAdminService.formatDate(tenant.subscription_starts_at) }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Fim:</dt>
+                    <dd class="font-medium text-gray-900">{{ superAdminService.formatDate(tenant.subscription_ends_at) }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Auto-renovação:</dt>
+                    <dd class="font-medium" [class.text-emerald-600]="tenant.auto_renew" [class.text-red-600]="!tenant.auto_renew">
+                      {{ tenant.auto_renew ? '✅ Sim' : '❌ Não' }}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">📊 Limites</h4>
+                <dl class="space-y-2 text-sm">
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Utilizadores:</dt>
+                    <dd class="font-medium text-gray-900">{{ tenant.max_users }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Projetos:</dt>
+                    <dd class="font-medium text-gray-900">{{ tenant.max_projects }}</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Armazenamento:</dt>
+                    <dd class="font-medium text-gray-900">{{ tenant.max_storage_mb }} MB</dd>
+                  </div>
+                  <div class="flex justify-between">
+                    <dt class="text-gray-500">Criado em:</dt>
+                    <dd class="font-medium text-gray-900">{{ tenant.created_at }}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

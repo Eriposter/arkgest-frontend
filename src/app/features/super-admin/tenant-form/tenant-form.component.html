@@ -1,0 +1,376 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="px-4 sm:px-6 lg:px-8">
+    
+    <!-- Header -->
+    <div class="mb-6">
+      <a routerLink="/super-admin/tenants" class="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-2">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        Voltar para Empresas
+      </a>
+      <h1 class="text-3xl font-bold text-gray-900">
+        {{ isEditMode ? '✏️ Editar Empresa' : '➕ Criar Nova Empresa' }}
+      </h1>
+      <p class="text-gray-500 mt-1">
+        {{ isEditMode 
+            ? 'Atualize os dados da empresa' 
+            : 'Preencha os dados para criar uma nova empresa com o seu administrador' }}
+      </p>
+    </div>
+
+    <!-- Mensagem de Sucesso (apenas criação) -->
+    <div *ngIf="!isEditMode && createdTenant" class="bg-emerald-50 border border-emerald-200 rounded-xl p-6 mb-6">
+      <div class="flex items-start gap-4">
+        <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold text-emerald-900 mb-2">✅ Empresa criada com sucesso!</h3>
+          <p class="text-sm text-emerald-700 mb-4">
+            A empresa "<strong>{{ createdTenant.name }}</strong>" e o administrador foram criados.
+          </p>
+          
+          <div class="bg-white rounded-lg p-4 border border-emerald-200 mb-4">
+            <p class="text-sm font-semibold text-gray-900 mb-3">🔐 Credenciais do Administrador:</p>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Email:</span>
+                <div class="flex items-center gap-2">
+                  <code class="text-sm font-mono bg-gray-100 px-3 py-1 rounded">{{ adminEmail }}</code>
+                  <button (click)="copyToClipboard(adminEmail)" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                    📋 Copiar
+                  </button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Password:</span>
+                <div class="flex items-center gap-2">
+                  <code class="text-sm font-mono bg-gray-100 px-3 py-1 rounded">{{ adminPassword }}</code>
+                  <button (click)="copyToClipboard(adminPassword)" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                    📋 Copiar
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p class="text-xs text-amber-800">
+                ⚠️ <strong>IMPORTANTE:</strong> Guarde estas credenciais! A password não será mostrada novamente.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <a routerLink="/super-admin/tenants" 
+               class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">
+              Ver Lista de Empresas
+            </a>
+            <button (click)="createdTenant = null" 
+                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+              Criar Outra Empresa
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulário -->
+    <div *ngIf="!(createdTenant && !isEditMode)" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      
+      <!-- Loading -->
+      <div *ngIf="loading && isEditMode" class="flex justify-center items-center py-20">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+
+      <form *ngIf="!loading || !isEditMode" (ngSubmit)="onSubmit()" class="space-y-6">
+        
+        <!-- ============================================ -->
+        <!-- SECÇÃO 1: DADOS DA EMPRESA -->
+        <!-- ============================================ -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-sm font-bold">1</span>
+            Dados da Empresa
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Nome da Empresa <span class="text-red-500">*</span>
+              </label>
+              <input type="text" [(ngModel)]="formData.name" name="name"
+                     (input)="onNameChange()"
+                     required
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Slug (URL) <span class="text-red-500">*</span>
+              </label>
+              <div class="flex">
+                <span class="inline-flex items-center px-3 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-gray-500 text-sm">
+                  arkgest.com/
+                </span>
+                <input type="text" [(ngModel)]="formData.slug" name="slug"
+                       required pattern="[a-z0-9-]+"
+                       [readonly]="isEditMode"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-indigo-500 disabled:bg-gray-50">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Razão Social</label>
+              <input type="text" [(ngModel)]="formData.company_name" name="company_name"
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">NIF</label>
+              <input type="text" [(ngModel)]="formData.nif" name="nif"
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Email <span class="text-red-500">*</span>
+              </label>
+              <input type="email" [(ngModel)]="formData.email" name="email" required
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+              <p *ngIf="!isEditMode" class="text-xs text-gray-500 mt-1">
+                Será o email do administrador da empresa
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+              <input type="text" [(ngModel)]="formData.phone" name="phone"
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+              <textarea [(ngModel)]="formData.address" name="address" rows="2"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"></textarea>
+            </div>
+
+            <!-- ✅ STATUS (apenas em edição) -->
+            <div *ngIf="isEditMode">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select [(ngModel)]="formData.status" name="status"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white">
+                <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECÇÃO 2: ADMINISTRADOR (apenas criação) -->
+        <!-- ============================================ -->
+        <div *ngIf="!isEditMode" class="bg-blue-50 border border-blue-200 rounded-xl p-5">
+          <h3 class="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-blue-200 text-blue-700 rounded-lg flex items-center justify-center text-sm font-bold">2</span>
+            Administrador da Empresa
+            <span class="text-xs font-normal text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full">
+              Criado automaticamente
+            </span>
+          </h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-blue-900 mb-1">Nome do Admin</label>
+              <input type="text" [(ngModel)]="formData.admin_name" name="admin_name"
+                     class="w-full px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white">
+              <p class="text-xs text-blue-700 mt-1">Padrão: "Administrador"</p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-blue-900 mb-1">Password (opcional)</label>
+              <div class="flex gap-2">
+                <input type="text" [(ngModel)]="formData.admin_password" name="admin_password"
+                       class="flex-1 px-4 py-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white font-mono text-sm"
+                       placeholder="Gerar automaticamente">
+                <button type="button" (click)="generateRandomPassword()"
+                        class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                  🎲 Gerar
+                </button>
+              </div>
+              <p class="text-xs text-blue-700 mt-1">Se vazio, será gerada automaticamente</p>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 bg-white border border-blue-200 rounded-lg">
+            <p class="text-xs text-blue-800">
+              💡 O administrador terá o email <strong>{{ formData.email || '[email da empresa]' }}</strong> 
+              e role <strong>admin</strong> dentro da empresa.
+            </p>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECÇÃO 3: PLANO -->
+        <!-- ============================================ -->
+        <div>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-sm font-bold">
+              {{ isEditMode ? '2' : '3' }}
+            </span>
+            Plano
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div *ngFor="let plan of plans"
+                 (click)="selectPlan(plan.value)"
+                 class="relative border-2 rounded-xl p-5 cursor-pointer transition-all"
+                 [class.border-indigo-500]="formData.plan === plan.value"
+                 [class.bg-indigo-50]="formData.plan === plan.value"
+                 [class.border-gray-200]="formData.plan !== plan.value"
+                 [class.hover:border-indigo-300]="formData.plan !== plan.value">
+              
+              <div *ngIf="plan.popular" 
+                   class="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">
+                MAIS POPULAR
+              </div>
+
+              <div class="text-center mb-4">
+                <h4 class="text-lg font-bold text-gray-900">{{ plan.label }}</h4>
+                <p class="text-3xl font-bold mt-2" 
+                   [class.text-blue-600]="plan.color === 'blue'"
+                   [class.text-purple-600]="plan.color === 'purple'"
+                   [class.text-amber-600]="plan.color === 'amber'">
+                  {{ plan.price }}
+                </p>
+                <p class="text-xs text-gray-500">AOA/mês</p>
+              </div>
+
+              <div class="space-y-2 text-sm border-t border-gray-200 pt-3">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{{ plan.users }} utilizadores</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{{ plan.projects }} projetos</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>{{ plan.storage }} armazenamento</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECÇÃO 4: LIMITES (apenas edição) -->
+        <!-- ============================================ -->
+        <div *ngIf="isEditMode" class="bg-purple-50 border border-purple-200 rounded-xl p-5">
+          <h3 class="text-lg font-semibold text-purple-900 mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-purple-200 text-purple-700 rounded-lg flex items-center justify-center text-sm font-bold">3</span>
+            Limites Personalizados
+          </h3>
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-purple-900 mb-1">Utilizadores</label>
+              <input type="number" [(ngModel)]="formData.max_users" name="max_users" min="1"
+                     class="w-full px-4 py-2 border border-purple-300 rounded-lg bg-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-purple-900 mb-1">Projetos</label>
+              <input type="number" [(ngModel)]="formData.max_projects" name="max_projects" min="1"
+                     class="w-full px-4 py-2 border border-purple-300 rounded-lg bg-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-purple-900 mb-1">Storage (MB)</label>
+              <input type="number" [(ngModel)]="formData.max_storage_mb" name="max_storage_mb" min="100"
+                     class="w-full px-4 py-2 border border-purple-300 rounded-lg bg-white">
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECÇÃO 5: TRIAL (apenas criação) -->
+        <!-- ============================================ -->
+        <div *ngIf="!isEditMode">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center text-sm font-bold">4</span>
+            Período de Trial
+          </h3>
+          <div class="flex items-center gap-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <label class="text-sm text-gray-700">Dias de trial:</label>
+            <input type="number" [(ngModel)]="formData.trial_days" name="trial_days"
+                   min="0" max="90"
+                   class="w-24 px-3 py-1.5 border border-gray-300 rounded-lg">
+            <span class="text-sm text-gray-500">dias</span>
+          </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- SECÇÃO 6: SUBSCRIÇÃO (apenas edição) -->
+        <!-- ============================================ -->
+        <div *ngIf="isEditMode" class="bg-amber-50 border border-amber-200 rounded-xl p-5">
+          <h3 class="text-lg font-semibold text-amber-900 mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 bg-amber-200 text-amber-700 rounded-lg flex items-center justify-center text-sm font-bold">4</span>
+            Subscrição
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-amber-900 mb-1">Início</label>
+              <input type="date" [(ngModel)]="formData.subscription_starts_at" name="subscription_starts_at"
+                     class="w-full px-4 py-2 border border-amber-300 rounded-lg bg-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-amber-900 mb-1">Fim</label>
+              <input type="date" [(ngModel)]="formData.subscription_ends_at" name="subscription_ends_at"
+                     class="w-full px-4 py-2 border border-amber-300 rounded-lg bg-white">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-amber-900 mb-1">Fim do Trial</label>
+              <input type="date" [(ngModel)]="formData.trial_ends_at" name="trial_ends_at"
+                     class="w-full px-4 py-2 border border-amber-300 rounded-lg bg-white">
+            </div>
+            <div class="flex items-center gap-3 pt-6">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" [(ngModel)]="formData.auto_renew" name="auto_renew" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-amber-300 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                <span class="ml-3 text-sm font-medium text-amber-900">Auto-renovação</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+          <a routerLink="/super-admin/tenants" 
+             class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+            Cancelar
+          </a>
+          <button type="submit" [disabled]="loading"
+                  class="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg text-sm font-medium hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 shadow-lg">
+            <span *ngIf="!loading" class="flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              {{ isEditMode ? 'Guardar Alterações' : 'Criar Empresa' }}
+            </span>
+            <span *ngIf="loading" class="flex items-center gap-2">
+              <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Processando...
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

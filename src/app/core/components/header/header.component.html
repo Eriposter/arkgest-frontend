@@ -20,6 +20,16 @@
           </svg>
         </button>
 
+        <!-- Botão Super Admin (visível apenas para super-admin) -->
+        <a *ngIf="isSuperAdmin" 
+           routerLink="/super-admin"
+           class="p-2 text-yellow-300 hover:text-yellow-100 hover:bg-white/10 rounded-lg transition-colors"
+           title="Painel Super Admin">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+        </a>
+
         <!-- Notificações -->
         <div class="relative">
           <!-- No header.component.html, atualiza o botão de notificações -->
@@ -71,12 +81,6 @@
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <div class="px-4 py-2 bg-gray-50 border-t border-gray-200 text-center">
-              <a routerLink="/notificacoes" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
-                Ver todas as notificações
-              </a>
             </div>
           </div>
         </div>

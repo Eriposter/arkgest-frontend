@@ -19,6 +19,41 @@ export const routes: Routes = [
     component: LayoutComponent,
     canActivate: [authGuard],
     children: [
+      // Rotas do Super-Admin
+{
+  path: 'super-admin',
+  loadComponent: () => import('./features/super-admin/super-admin-dashboard/super-admin-dashboard.component').then(m => m.SuperAdminDashboardComponent),
+  data: { roles: ['super-admin'] }
+},
+{
+  path: 'super-admin/tenants',
+  loadComponent: () => import('./features/super-admin/tenants-list/tenants-list.component').then(m => m.TenantsListComponent),
+  data: { roles: ['super-admin'] }
+},
+{
+  path: 'super-admin/tenants/novo',
+  loadComponent: () => import('./features/super-admin/tenant-form/tenant-form.component').then(m => m.TenantFormComponent),
+  data: { roles: ['super-admin'] }
+},
+{
+  path: 'super-admin/tenants/:id',
+  loadComponent: () => import('./features/super-admin/tenant-details/tenant-details.component').then(m => m.TenantDetailsComponent),
+  data: { roles: ['super-admin'] }
+},
+{
+  path: 'super-admin/tenants/:id/editar',
+  loadComponent: () => import('./features/super-admin/tenant-form/tenant-form.component').then(m => m.TenantFormComponent),
+  data: { roles: ['super-admin'] }
+},
+{
+  path: 'super-admin/licenses',
+  loadComponent: () => import('./features/super-admin/licenses-list/licenses-list.component').then(m => m.LicensesListComponent),
+  data: { roles: ['super-admin'] }
+},
+{
+  path: 'licenca-expirada',
+  loadComponent: () => import('./features/license-expired/license-expired.component').then(m => m.LicenseExpiredComponent)
+},
       {
         path: 'dashboard',
         loadComponent: () =>
@@ -27,22 +62,34 @@ export const routes: Routes = [
           ),
       },
       {
-  path: 'projetos/novo',
-  loadComponent: () => import('./features/projetos/projeto-form/projeto-form.component').then(m => m.ProjetoFormComponent)
-},
-{
-  path: 'projetos/:id/editar',
-  loadComponent: () => import('./features/projetos/projeto-form/projeto-form.component').then(m => m.ProjetoFormComponent)
-},
-{
-  path: 'projetos/:id',
-  loadComponent: () => import('./features/projetos/project-details/project-details.component').then(m => m.ProjectDetailsComponent)
-},
-// ✅ Lista por último
-{
-  path: 'projetos',
-  loadComponent: () => import('./features/projetos/projetos/projetos.component').then(m => m.ProjetosComponent)
-},
+        path: 'projetos/novo',
+        loadComponent: () =>
+          import('./features/projetos/projeto-form/projeto-form.component').then(
+            (m) => m.ProjetoFormComponent,
+          ),
+      },
+      {
+        path: 'projetos/:id/editar',
+        loadComponent: () =>
+          import('./features/projetos/projeto-form/projeto-form.component').then(
+            (m) => m.ProjetoFormComponent,
+          ),
+      },
+      {
+        path: 'projetos/:id',
+        loadComponent: () =>
+          import('./features/projetos/project-details/project-details.component').then(
+            (m) => m.ProjectDetailsComponent,
+          ),
+      },
+      // ✅ Lista por último
+      {
+        path: 'projetos',
+        loadComponent: () =>
+          import('./features/projetos/projetos/projetos.component').then(
+            (m) => m.ProjetosComponent,
+          ),
+      },
       {
         path: 'tarefas',
         loadComponent: () =>
