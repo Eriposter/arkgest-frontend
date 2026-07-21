@@ -15,6 +15,7 @@ export class LoginComponent {
   loading = false;
   showPassword = false;
   errorMessage = '';
+  message: { type: 'info' | 'warning' | 'error', text: string } | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -26,6 +27,18 @@ export class LoginComponent {
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
+
+  ngOnInit(): void {
+  const reason = sessionStorage.getItem('logout_reason');
+  
+  if (reason === 'inactivity') {
+    this.message = {
+      type: 'warning',
+      text: '⚠️ A sua sessão foi encerrada por inatividade. Por favor, faça login novamente.'
+    };
+    sessionStorage.removeItem('logout_reason');
+  }
+}
 
   onSubmit(): void {
   if (this.form.invalid) {
